@@ -7,7 +7,11 @@ defmodule Knock.MixProject do
       version: "0.1.0",
       elixir: "~> 1.10",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      description: description(),
+      package: package(),
+      name: "Knock",
+      deps: deps(),
+      source_url: "https://github.com/knocklabs/knock-elixir"
     ]
   end
 
@@ -23,7 +27,20 @@ defmodule Knock.MixProject do
     [
       {:tesla, "~> 1.4.1"},
       {:hackney, "~> 1.17.0"},
-      {:jason, "~> 1.1"}
+      {:jason, "~> 1.1"},
+      {:ex_doc, "~> 0.14", only: :dev, runtime: false}
+    ]
+  end
+
+  defp description() do
+    "Official Elixir SDK for interacting with the Knock API."
+  end
+
+  defp package() do
+    [
+      files: ~w(lib priv .formatter.exs mix.exs README* readme* LICENSE*),
+      licenses: ["MIT"],
+      links: %{"GitHub" => "https://github.com/knocklabs/knock-elixir"}
     ]
   end
 end
