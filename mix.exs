@@ -1,17 +1,21 @@
 defmodule Knock.MixProject do
   use Mix.Project
 
+  @source_url "https://github.com/knocklabs/knock-elixir"
+  @version "0.1.0"
+
   def project do
     [
       app: :knock,
-      version: "0.1.0",
+      version: @version,
       elixir: "~> 1.10",
       start_permanent: Mix.env() == :prod,
       description: description(),
       package: package(),
       name: "Knock",
       deps: deps(),
-      source_url: "https://github.com/knocklabs/knock-elixir"
+      docs: docs(),
+      source_url: @source_url
     ]
   end
 
@@ -32,15 +36,25 @@ defmodule Knock.MixProject do
     ]
   end
 
-  defp description() do
+  defp description do
     "Official Elixir SDK for interacting with the Knock API."
   end
 
-  defp package() do
+  defp package do
     [
+      maintainers: ["Knock Team"],
       files: ~w(lib .formatter.exs mix.exs README* LICENSE*),
       licenses: ["MIT"],
-      links: %{"GitHub" => "https://github.com/knocklabs/knock-elixir"}
+      links: %{"GitHub" => @source_url}
+    ]
+  end
+
+  defp docs do
+    [
+      main: "readme",
+      source_url: @source_url,
+      source_ref: "v#{@version}",
+      extras: ["README.md", "LICENSE"]
     ]
   end
 end
