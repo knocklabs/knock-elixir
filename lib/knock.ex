@@ -75,17 +75,12 @@ defmodule Knock do
         |> Keyword.merge(overrides)
       end
 
-      defp maybe_resolve_api_key([api_key: {:system, var_name}] = opts) do
-        Keyword.put(opts, :api_key, System.get_env(var_name))
-      end
-
-      defp maybe_resolve_api_key([api_key: api_key] = opts)
-           when is_binary(api_key) do
-        opts
-      end
-
       defp maybe_resolve_api_key(opts) do
-        Keyword.put(opts, :api_key, System.get_env(@api_key_env_var))
+        case Keyword.get(opts, :api_key) do
+          api_key when is_binary(api_key) -> opts
+          {:system, var_name} -> Keyword.put(opts, :api_key, System.get_env(var_name))
+          _ -> Keyword.put(opts, :api_key, System.get_env(@api_key_env_var))
+        end
       end
     end
   end

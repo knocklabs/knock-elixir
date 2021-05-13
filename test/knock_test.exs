@@ -23,5 +23,16 @@ defmodule KnockTest do
 
       assert knock.api_key == "sk_test_12345"
     end
+
+    test "it can read from application config" do
+      Application.put_env(:knock, KnockTest.TestClient,
+        api_key: "sk_test_12345",
+        foo: "bar"
+      )
+
+      knock = TestClient.client()
+
+      assert knock.api_key == "sk_test_12345"
+    end
   end
 end
