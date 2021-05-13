@@ -36,6 +36,7 @@ defmodule Knock.Client do
       raise Knock.ApiKeyMissingError
     end
 
+    opts = Keyword.take(opts, [:host, :api_key, :adapter, :json_client])
     struct!(__MODULE__, opts)
   end
 end
