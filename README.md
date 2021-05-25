@@ -13,7 +13,7 @@ Add the package to your `mix.exs` file as follows:
 ```elixir
 def deps do
   [
-    {:knock, "~> 0.1.0"}
+    {:knock, "~> 0.1.3"}
   ]
 end
 ```
@@ -82,6 +82,16 @@ MyApp.Knock.client()
     "type" => "trex",
     "priority" => 1,
   },
+})
+```
+
+### Canceling notifies
+
+```elixir
+MyApp.Knock.client()
+|> Knock.Notify.cancel("dinosaurs-loose", alert.id, %{
+  # optional list of user ids for who should have their notify canceled
+  "recipients" => ["jhammond", "agrant", "imalcolm", "esattler"],
 })
 ```
 
