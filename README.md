@@ -85,11 +85,31 @@ MyApp.Knock.client()
 })
 ```
 
-### Canceling notifies
+### User preferences
+
+```elixir
+client = MyApp.Knock.client()
+
+# Set preference set for user
+Knock.Preferences.set(client, "jhammond", %{channel_types: %{email: true}})
+
+# Set granular channel type preferences
+Knock.Preferences.set_channel_type(client, "jhammond", :email, true)
+
+# Set granular workflow preferences
+Knock.Preferences.set_workflow(client, "jhammond", "dinosaurs-loose", %{
+  channel_types: %{email: true}
+})
+
+# Retrieve preferences
+Knock.Preferences.get(client, "jhammond")
+```
+
+### Cancelling notifies
 
 ```elixir
 MyApp.Knock.client()
-|> Knock.Notify.cancel("dinosaurs-loose", alert.id, %{
+|> Knock.Workflows.cancel("dinosaurs-loose", alert.id, %{
   # optional list of user ids for who should have their notify canceled
   "recipients" => ["jhammond", "agrant", "imalcolm", "esattler"],
 })
