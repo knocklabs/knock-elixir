@@ -20,4 +20,11 @@ defmodule Knock.Users do
   def identify(client, user_id, properties) do
     Api.put(client, "/users/#{user_id}", properties)
   end
+
+  @doc """
+  Issues a delete request against the user specified
+  """
+  def delete(client, user_id) do
+    Api.delete(client, "/users/#{user_id}")
+  end
 end
