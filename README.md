@@ -13,7 +13,7 @@ Add the package to your `mix.exs` file as follows:
 ```elixir
 def deps do
   [
-    {:knock, "~> 0.1.3"}
+    {:knock, "~> 0.2.0"}
   ]
 end
 ```
