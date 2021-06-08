@@ -79,7 +79,7 @@ defmodule Knock.Preferences do
     Api.put(
       client,
       "/users/#{user_id}/preferences/#{preference_set_id}/workflows/#{workflow_key}",
-      %{subscribed: setting}
+      build_setting_param(setting)
     )
   end
 
@@ -105,7 +105,10 @@ defmodule Knock.Preferences do
     Api.put(
       client,
       "/users/#{user_id}/preferences/#{preference_set_id}/categories/#{category_key}",
-      %{subscribed: setting}
+      build_setting_param(setting)
     )
   end
+
+  defp build_setting_param(setting) when is_map(setting), do: setting
+  defp build_setting_param(setting), do: %{subscribed: setting}
 end
