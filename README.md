@@ -77,6 +77,10 @@ MyApp.Knock.client()
   "actor" => "dnedry",
   # list of user ids for who should receive the notif
   "recipients" => ["jhammond", "agrant", "imalcolm", "esattler"],
+  # an optional cancellation key
+  "cancellation_key" => alert.id,
+  # an optional tenant
+  "tenant" => "jurassic-park",
   # data payload to send through
   "data" => %{
     "type" => "trex",
@@ -105,7 +109,7 @@ Knock.Preferences.set_workflow(client, "jhammond", "dinosaurs-loose", %{
 Knock.Preferences.get(client, "jhammond")
 ```
 
-### Cancelling notifies
+### Canceling notifies
 
 ```elixir
 MyApp.Knock.client()
