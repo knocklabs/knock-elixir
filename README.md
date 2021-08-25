@@ -109,6 +109,20 @@ Knock.Preferences.set_workflow(client, "jhammond", "dinosaurs-loose", %{
 Knock.Preferences.get(client, "jhammond")
 ```
 
+### Getting and setting channel data
+
+```elixir
+client = MyApp.Knock.client()
+
+# Set channel data for an APNS
+Knock.Users.set_channel_data(client, "jhammond", KNOCK_APNS_CHANNEL_ID, %{
+  tokens: [apns_token],
+})
+
+# Get channel data for the APNS channel
+Knock.Users.get_channel_data(client, "jhammond", KNOCK_APNS_CHANNEL_ID)
+```
+
 ### Canceling notifies
 
 ```elixir
