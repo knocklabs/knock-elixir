@@ -30,7 +30,7 @@ defmodule Knock.MixProject do
   defp deps do
     [
       {:tesla, "~> 1.4.1"},
-      {:hackney, "~> 1.17.0"},
+      {:hackney, "~> 1.18.0"},
       {:jason, "~> 1.1"},
       {:ex_doc, "~> 0.14", only: :dev, runtime: false}
     ]
