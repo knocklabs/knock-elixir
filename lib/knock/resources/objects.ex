@@ -13,11 +13,13 @@ defmodule Knock.Objects do
   @doc """
   Builds an object reference, which can be used in workflow trigger calls.
   """
+  @spec build_ref(String.t(), String.t()) :: ref()
   def build_ref(collection, id), do: %{id: id, collection: collection}
 
   @doc """
-  Sets the given object, performing an upsert operation in the process.
+  Upserts the given object in the collection with the attrs provided.
   """
+  @spec set(Client.t(), String.t(), String.t(), map()) :: Api.response()
   def set(client, collection, id, attrs) do
     Api.put(client, "/objects/#{collection}/#{id}", attrs)
   end
@@ -25,13 +27,15 @@ defmodule Knock.Objects do
   @doc """
   Gets the given object.
   """
+  @spec get(Client.t(), String.t(), String.t()) :: Api.response()
   def get(client, collection, id) do
     Api.get(client, "/objects/#{collection}/#{id}")
   end
 
   @doc """
-  Soft deletes the given object.
+  Deletes the given object.
   """
+  @spec delete(Client.t(), String.t(), String.t()) :: Api.response()
   def delete(client, collection, id) do
     Api.delete(client, "/objects/#{collection}/#{id}")
   end
@@ -41,15 +45,17 @@ defmodule Knock.Objects do
   ##
 
   @doc """
-  Bulk sets one or more objects in a collection
+  Bulk upserts one or more objects in a collection.
   """
-  def bulk_set(client, collection, objects_to_bulk_set) do
-    Api.post(client, "/objects/#{collection}/bulk/set", %{objects: objects_to_bulk_set})
+  @spec bulk_set(Client.t(), String.t(), [map()]) :: Api.response()
+  def bulk_set(client, collection, objects) do
+    Api.post(client, "/objects/#{collection}/bulk/set", %{objects: objects})
   end
 
   @doc """
-  Bulk deletes one or more objects in a collection
+  Bulk deletes one or more objects in a collection.
   """
+  @spec bulk_delete(Client.t(), String.t(), [String.t()]) :: Api.response()
   def bulk_delete(client, collection, object_ids) do
     Api.post(client, "/objects/#{collection}/bulk/delete", %{object_ids: object_ids})
   end

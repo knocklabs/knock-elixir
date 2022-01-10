@@ -17,7 +17,7 @@ defmodule Knock.Users do
   end
 
   @doc """
-  Returns information about the user
+  Returns information about the user.
   """
   @spec get(Client.t(), String.t()) :: Api.response()
   def get(client, user_id) do
@@ -25,8 +25,7 @@ defmodule Knock.Users do
   end
 
   @doc """
-  Sets the given properties on the user specified via the `user_id`. Will perform
-  an upsert of the user.
+  Upserts the user specified via the `user_id` with the given properties.
   """
   @spec identify(Client.t(), String.t(), map()) :: Api.response()
   def identify(client, user_id, properties) do
@@ -45,6 +44,7 @@ defmodule Knock.Users do
   Returns a feed for the user with the given channel_id. Optionally supports all of the options
   for fetching the feed.
   """
+  @spec get_feed(Client.t(), String.t(), String.t(), Keyword.t()) :: Api.response()
   def get_feed(client, user_id, channel_id, options \\ []) do
     query = URI.encode_query(options)
 
@@ -58,6 +58,7 @@ defmodule Knock.Users do
   @doc """
   Bulk identifies the list of users given. Can accept a maximum of 100 users at a time.
   """
+  @spec bulk_identify(Client.t(), [map()]) :: Api.response()
   def bulk_identify(client, users) do
     Api.post(client, "/users/bulk/identify", %{users: users})
   end
@@ -65,6 +66,7 @@ defmodule Knock.Users do
   @doc """
   Bulk deletes the list of users given. Can accept a maximum of 100 users at a time.
   """
+  @spec bulk_delete(Client.t(), [String.t()]) :: Api.response()
   def bulk_delete(client, user_ids) do
     Api.post(client, "/users/bulk/delete", %{user_ids: user_ids})
   end
@@ -96,13 +98,15 @@ defmodule Knock.Users do
   @doc """
   Returns all of the users preference sets
   """
+  @spec get_all_preferences(Client.t(), String.t()) :: Api.response()
   def get_all_preferences(client, user_id) do
     Api.get(client, "/users/#{user_id}/preferences")
   end
 
   @doc """
-  Returns the preference set for the user
+  Returns the preference set for the user.
   """
+  @spec get_preferences(Client.t(), String.t(), Keyword.t()) :: Api.response()
   def get_preferences(client, user_id, options \\ []) do
     preference_set_id = Keyword.get(options, :preference_set, @default_preference_set_id)
 
@@ -110,8 +114,9 @@ defmodule Knock.Users do
   end
 
   @doc """
-  Sets the entire preference set for the user
+  Sets an entire preference set for the user. Will overwrite any existing data.
   """
+  @spec set_preferences(Client.t(), String.t(), map(), Keyword.t()) :: Api.response()
   def set_preferences(client, user_id, preferences, options \\ []) do
     preference_set_id = Keyword.get(options, :preference_set, @default_preference_set_id)
 
@@ -119,8 +124,10 @@ defmodule Knock.Users do
   end
 
   @doc """
-  Bulk sets the preferences given for the list of user ids.
+  Bulk sets the preferences given for the list of user ids. Will overwrite the any existing
+  preferences for these users.
   """
+  @spec bulk_set_preferences(Client.t(), [String.t()], map(), Keyword.t()) :: Api.response()
   def bulk_set_preferences(client, user_ids, preferences, options \\ []) do
     preference_set_id = Keyword.get(options, :preference_set, @default_preference_set_id)
     preferences = Map.put_new(preferences, "id", preference_set_id)
@@ -132,8 +139,10 @@ defmodule Knock.Users do
   end
 
   @doc """
-  Sets the channel type preferences for the user
+  Sets the channel type preferences for the user.
   """
+  @spec set_channel_types_preferences(Client.t(), String.t(), map(), Keyword.t()) ::
+          Api.response()
   def set_channel_types_preferences(client, user_id, channel_types, options \\ []) do
     preference_set_id = Keyword.get(options, :preference_set, @default_preference_set_id)
 
@@ -145,8 +154,10 @@ defmodule Knock.Users do
   end
 
   @doc """
-  Sets the channel type preferences for the user
+  Sets the channel type preference for the user.
   """
+  @spec set_channel_type_preferences(Client.t(), String.t(), String.t(), boolean(), Keyword.t()) ::
+          Api.response()
   def set_channel_type_preferences(client, user_id, channel_type, setting, options \\ []) do
     preference_set_id = Keyword.get(options, :preference_set, @default_preference_set_id)
 
@@ -158,8 +169,9 @@ defmodule Knock.Users do
   end
 
   @doc """
-  Sets the workflow preferences for the user
+  Sets the workflow preferences for the user.
   """
+  @spec set_workflows_preferences(Client.t(), String.t(), map(), Keyword.t()) :: Api.response()
   def set_workflows_preferences(client, user_id, workflows, options \\ []) do
     preference_set_id = Keyword.get(options, :preference_set, @default_preference_set_id)
 
@@ -171,8 +183,15 @@ defmodule Knock.Users do
   end
 
   @doc """
-  Sets the workflow preference for the user
+  Sets the workflow preference for the user.
   """
+  @spec set_workflow_preferences(
+          Client.t(),
+          String.t(),
+          String.t(),
+          map() | boolean(),
+          Keyword.t()
+        ) :: Api.response()
   def set_workflow_preferences(client, user_id, workflow_key, setting, options \\ []) do
     preference_set_id = Keyword.get(options, :preference_set, @default_preference_set_id)
 
@@ -184,8 +203,9 @@ defmodule Knock.Users do
   end
 
   @doc """
-  Sets the workflow preferences for the user
+  Sets the category preferences for the user.
   """
+  @spec set_categories_preferences(Client.t(), String.t(), map(), Keyword.t()) :: Api.response()
   def set_categories_preferences(client, user_id, categories, options \\ []) do
     preference_set_id = Keyword.get(options, :preference_set, @default_preference_set_id)
 
@@ -197,8 +217,15 @@ defmodule Knock.Users do
   end
 
   @doc """
-  Sets the workflow preference for the user
+  Sets the category preference for the user.
   """
+  @spec set_category_preferences(
+          Client.t(),
+          String.t(),
+          String.t(),
+          map() | boolean(),
+          Keyword.t()
+        ) :: Api.response()
   def set_category_preferences(client, user_id, category_key, setting, options \\ []) do
     preference_set_id = Keyword.get(options, :preference_set, @default_preference_set_id)
 
