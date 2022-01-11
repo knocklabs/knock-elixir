@@ -95,18 +95,18 @@ MyApp.Knock.client()
 client = MyApp.Knock.client()
 
 # Set preference set for user
-Knock.Preferences.set(client, "jhammond", %{channel_types: %{email: true}})
+Knock.Users.set_preferences(client, "jhammond", %{channel_types: %{email: true}})
 
 # Set granular channel type preferences
-Knock.Preferences.set_channel_type(client, "jhammond", :email, true)
+Knock.Users.set_channel_type_preferences(client, "jhammond", :email, true)
 
 # Set granular workflow preferences
-Knock.Preferences.set_workflow(client, "jhammond", "dinosaurs-loose", %{
+Knock.Users.set_workflow_preferences(client, "jhammond", "dinosaurs-loose", %{
   channel_types: %{email: true}
 })
 
 # Retrieve preferences
-Knock.Preferences.get(client, "jhammond")
+Knock.Users.get_preferences(client, "jhammond")
 ```
 
 ### Getting and setting channel data

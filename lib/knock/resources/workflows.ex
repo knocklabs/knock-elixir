@@ -19,7 +19,7 @@ defmodule Knock.Workflows do
 
   Can optionally be provided with:
 
-  - `recipients`: A list of user ids to cancel the notify for
+  - `recipients`: A list of recipients to cancel the notify for
   """
   @spec cancel(Knock.Client.t(), String.t(), String.t(), map()) :: Api.response()
   def cancel(client, key, cancellation_key, properties \\ %{}) do

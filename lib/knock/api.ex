@@ -15,7 +15,7 @@ defmodule Knock.Api do
   @typedoc """
   Defines available options to pass to an API function
   """
-  @type options :: Tesla.option() | []
+  @type options :: [Tesla.option()] | []
 
   @doc """
   Executes a get request against the Knock api.
