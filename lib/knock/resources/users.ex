@@ -51,6 +51,14 @@ defmodule Knock.Users do
     Api.get(client, "/users/#{user_id}/feeds/#{channel_id}", query: query)
   end
 
+  @doc """
+  Merges the user specified with `from_user_id` into the user specified with `user_id`.
+  """
+  @spec merge(Client.t(), String.t(), String.t()) :: Api.response()
+  def merge(client, user_id, from_user_id) do
+    Api.post(client, "/users/#{user_id}/merge", %{from_user_id: from_user_id})
+  end
+
   ##
   # Bulk actions
   ##
