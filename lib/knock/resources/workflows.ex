@@ -7,7 +7,7 @@ defmodule Knock.Workflows do
   @doc """
   Executes a notify call for the workflow with the given key.
 
-  Note: properties must contain at least `actor` and `recipents` for the call to be valid.
+  Note: properties must contain at least `recipents` for the call to be valid.
   """
   @spec trigger(Knock.Client.t(), String.t(), map()) :: Api.response()
   def trigger(client, key, properties) do
