@@ -46,7 +46,7 @@ config :my_app, MyApp.Knock,
 Or you can pass it through when creating a client instance:
 
 ```elixir
-knock_client = MyApp.Knock.new(api_key: "sk_12345")
+knock_client = MyApp.Knock.client(api_key: "sk_12345")
 ```
 
 ## Usage
