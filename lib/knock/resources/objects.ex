@@ -81,4 +81,26 @@ defmodule Knock.Objects do
       data: channel_data
     })
   end
+
+  ##
+  # Messages
+  ##
+
+  @doc """
+  Returns paginated messages for the given object
+
+  # Available optional parameters:
+  #
+  # - page_size: specify size of the page to be returned by the api. Top limit: 50
+  # - after:  after cursor for pagination
+  # - before: before cursor for pagination
+  # - status: list of statuses to filter messages with
+  # - tenant: tenant_id to filter messages with
+  # - channel_id: channel_id to filter messages with
+  # - source: workflow key to filter messages with
+  """
+  @spec get_messages(Client.t(), String.t(), String.t(), Keyword.t()) :: Api.response()
+  def get_messages(client, collection, id, options \\ %{}) do
+    Api.get(client, "/objects/#{collection}/#{id}/messages", query: options)
+  end
 end
