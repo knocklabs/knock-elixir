@@ -26,7 +26,7 @@ defmodule Knock.Messages do
 
   # Available optional parameters:
   #
-  # - page_size: specify size of the page to be returned by the api. Top limit: 50
+  # - page_size: specify size of the page to be returned by the api. (max limit: 50)
   # - after:  after cursor for pagination
   # - before: before cursor for pagination
   """
@@ -40,7 +40,7 @@ defmodule Knock.Messages do
 
   # Available optional parameters:
   #
-  # - page_size: specify size of the page to be returned by the api. Top limit: 50
+  # - page_size: specify size of the page to be returned by the api. (max limit: 50)
   # - after:  after cursor for pagination
   # - before: before cursor for pagination
   """
