@@ -6,6 +6,25 @@ defmodule Knock.Messages do
   alias Knock.Client
 
   @doc """
+  Returns paginated messages for the provided environment
+
+  # Available optional parameters:
+  #
+  # - page_size: specify size of the page to be returned by the api. (max limit: 50)
+  # - after:  after cursor for pagination
+  # - before: before cursor for pagination
+  # - status: list of statuses to filter messages with
+  # - tenant: tenant_id to filter messages with
+  # - channel_id: channel_id to filter messages with
+  # - source: workflow key to filter messages with
+
+  """
+  @spec list(Client.t(), Keyword.t()) :: Api.response()
+  def list(client, options \\ []) do
+    Api.get(client, "/messages", query: options)
+  end
+
+  @doc """
   Returns information about the message.
   """
   @spec get(Client.t(), String.t()) :: Api.response()
