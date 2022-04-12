@@ -100,7 +100,7 @@ defmodule Knock.Objects do
   # - source: workflow key to filter messages with
   """
   @spec get_messages(Client.t(), String.t(), String.t(), Keyword.t()) :: Api.response()
-  def get_messages(client, collection, id, options \\ %{}) do
+  def get_messages(client, collection, id, options \\ []) do
     Api.get(client, "/objects/#{collection}/#{id}/messages", query: options)
   end
 end
