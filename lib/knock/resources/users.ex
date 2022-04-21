@@ -46,9 +46,7 @@ defmodule Knock.Users do
   """
   @spec get_feed(Client.t(), String.t(), String.t(), Keyword.t()) :: Api.response()
   def get_feed(client, user_id, channel_id, options \\ []) do
-    query = URI.encode_query(options)
-
-    Api.get(client, "/users/#{user_id}/feeds/#{channel_id}", query: query)
+    Api.get(client, "/users/#{user_id}/feeds/#{channel_id}", query: options)
   end
 
   @doc """
