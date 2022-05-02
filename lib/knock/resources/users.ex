@@ -97,6 +97,14 @@ defmodule Knock.Users do
     Api.put(client, "/users/#{user_id}/channel_data/#{channel_id}", %{data: channel_data})
   end
 
+  @doc """
+  Unsets the user's channel data for the given channel id.
+  """
+  @spec unset_channel_data(Client.t(), String.t(), String.t()) :: Api.response()
+  def unset_channel_data(client, user_id, channel_id) do
+    Api.delete(client, "/users/#{user_id}/channel_data/#{channel_id}")
+  end
+
   ##
   # Preferences
   ##
