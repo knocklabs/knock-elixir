@@ -2,6 +2,8 @@ defmodule Knock.Users do
   @moduledoc """
   Knock resources for accessing users
   """
+  import Knock.ResourceHelpers, only: [maybe_json_encode_param: 2]
+
   alias Knock.Api
   alias Knock.Client
 
@@ -43,9 +45,22 @@ defmodule Knock.Users do
   @doc """
   Returns a feed for the user with the given channel_id. Optionally supports all of the options
   for fetching the feed.
+
+  # Available optional parameters:
+  #
+  # - page_size: specify size of the page to be returned by the api. (max limit: 50)
+  # - after:  after cursor for pagination
+  # - before: before cursor for pagination
+  # - status: list of statuses to filter feed items with
+  # - tenant: tenant_id to filter messages with
+  # - has_tenant: optionally scope items by a tenant id or no tenant
+  # - archived: scope items by a given archived status (defaults to "exclude")
+  # - trigger_data: trigger payload to filter feed items with
   """
   @spec get_feed(Client.t(), String.t(), String.t(), Keyword.t()) :: Api.response()
   def get_feed(client, user_id, channel_id, options \\ []) do
+    options = maybe_json_encode_param(options, :trigger_data)
+
     Api.get(client, "/users/#{user_id}/feeds/#{channel_id}", query: options)
   end
 
@@ -266,9 +281,12 @@ defmodule Knock.Users do
   # - tenant: tenant_id to filter messages with
   # - channel_id: channel_id to filter messages with
   # - source: workflow key to filter messages with
+  # - trigger_data: trigger payload to filter messages with
   """
   @spec get_messages(Client.t(), String.t(), Keyword.t()) :: Api.response()
   def get_messages(client, id, options \\ []) do
+    options = maybe_json_encode_param(options, :trigger_data)
+
     Api.get(client, "/users/#{id}/messages", query: options)
   end
 

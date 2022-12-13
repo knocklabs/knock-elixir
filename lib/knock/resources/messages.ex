@@ -2,6 +2,8 @@ defmodule Knock.Messages do
   @moduledoc """
   Knock resources for accessing messages
   """
+  import Knock.ResourceHelpers, only: [maybe_json_encode_param: 2]
+
   alias Knock.Api
   alias Knock.Client
 
@@ -17,10 +19,13 @@ defmodule Knock.Messages do
   # - tenant: tenant_id to filter messages with
   # - channel_id: channel_id to filter messages with
   # - source: workflow key to filter messages with
+  # - trigger_data: trigger payload to filter messages with
 
   """
   @spec list(Client.t(), Keyword.t()) :: Api.response()
   def list(client, options \\ []) do
+    options = maybe_json_encode_param(options, :trigger_data)
+
     Api.get(client, "/messages", query: options)
   end
 
@@ -48,9 +53,12 @@ defmodule Knock.Messages do
   # - page_size: specify size of the page to be returned by the api. (max limit: 50)
   # - after:  after cursor for pagination
   # - before: before cursor for pagination
+  # - trigger_data: filter activities by trigger payload data
   """
   @spec get_activities(Client.t(), String.t(), Keyword.t()) :: Api.response()
   def get_activities(client, message_id, options \\ []) do
+    options = maybe_json_encode_param(options, :trigger_data)
+
     Api.get(client, "/messages/#{message_id}/activities", query: options)
   end
 

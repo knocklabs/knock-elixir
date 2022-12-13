@@ -2,6 +2,8 @@ defmodule Knock.Objects do
   @moduledoc """
   Knock resources for accessing Objects
   """
+  import Knock.ResourceHelpers, only: [maybe_json_encode_param: 2]
+
   alias Knock.Api
   alias Knock.Client
 
@@ -107,9 +109,12 @@ defmodule Knock.Objects do
   # - tenant: tenant_id to filter messages with
   # - channel_id: channel_id to filter messages with
   # - source: workflow key to filter messages with
+  # - trigger_data: trigger payload to filter messages with
   """
   @spec get_messages(Client.t(), String.t(), String.t(), Keyword.t()) :: Api.response()
   def get_messages(client, collection, id, options \\ []) do
+    options = maybe_json_encode_param(options, :trigger_data)
+
     Api.get(client, "/objects/#{collection}/#{id}/messages", query: options)
   end
 
