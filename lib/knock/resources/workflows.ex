@@ -8,10 +8,13 @@ defmodule Knock.Workflows do
   Executes a notify call for the workflow with the given key.
 
   Note: properties must contain at least `recipents` for the call to be valid.
+
+  Options can include:
+  * `idempotency_key`: A unique key to prevent duplicate requests
   """
-  @spec trigger(Knock.Client.t(), String.t(), map()) :: Api.response()
-  def trigger(client, key, properties) do
-    Api.post(client, "/workflows/#{key}/trigger", properties)
+  @spec trigger(Knock.Client.t(), String.t(), map(), keyword()) :: Api.response()
+  def trigger(client, key, properties, options \\ []) do
+    Api.post(client, "/workflows/#{key}/trigger", properties, options)
   end
 
   @doc """
