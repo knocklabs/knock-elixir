@@ -85,12 +85,14 @@ defmodule Knock.Api do
        [
          {"Authorization", "Bearer " <> config.api_key},
          {"User-Agent", "knocklabs/knock-elixir@#{library_version()}"}
-       ] ++ maybe_idempotency_key_header(opts)}
+       ] ++ maybe_idempotency_key_header(Map.new(opts))}
     ]
 
     Tesla.client(middleware, config.adapter)
   end
 
-  defp maybe_idempotency_key_header(idempotency_key: key), do: [{"Idempotency-Key", key}]
+  defp maybe_idempotency_key_header(%{idempotency_key: key}) when is_binary(key),
+    do: [{"Idempotency-Key", key}]
+
   defp maybe_idempotency_key_header(_), do: []
 end
