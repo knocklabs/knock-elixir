@@ -34,7 +34,7 @@ defmodule Knock.Api do
   @spec put(Client.t(), String.t(), map(), options()) :: response()
   def put(client, path, body, opts \\ []) do
     client
-    |> http_client()
+    |> http_client(opts)
     |> Tesla.put(path, body, opts)
     |> handle_response()
   end
@@ -45,7 +45,7 @@ defmodule Knock.Api do
   @spec post(Client.t(), String.t(), map(), options()) :: response()
   def post(client, path, body, opts \\ []) do
     client
-    |> http_client()
+    |> http_client(opts)
     |> Tesla.post(path, body, opts)
     |> handle_response()
   end
@@ -77,7 +77,7 @@ defmodule Knock.Api do
   """
   def library_version, do: @lib_version
 
-  defp http_client(config) do
+  defp http_client(config, opts \\ []) do
     middleware = [
       {Tesla.Middleware.BaseUrl, config.host <> "/v1"},
       {Tesla.Middleware.JSON, engine: config.json_client},
@@ -85,9 +85,14 @@ defmodule Knock.Api do
        [
          {"Authorization", "Bearer " <> config.api_key},
          {"User-Agent", "knocklabs/knock-elixir@#{library_version()}"}
-       ]}
+       ] ++ maybe_idempotency_key_header(Map.new(opts))}
     ]
 
     Tesla.client(middleware, config.adapter)
   end
+
+  defp maybe_idempotency_key_header(%{idempotency_key: key}) when is_binary(key),
+    do: [{"Idempotency-Key", key}]
+
+  defp maybe_idempotency_key_header(_), do: []
 end
