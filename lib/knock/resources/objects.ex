@@ -119,6 +119,26 @@ defmodule Knock.Objects do
   end
 
   ##
+  # Schedules
+  ##
+
+  @doc """
+  Returns paginated schedules for the given object
+
+  # Available optional parameters:
+  #
+  # - page_size: specify size of the page to be returned by the api. (max limit: 50)
+  # - after:  after cursor for pagination
+  # - before: before cursor for pagination
+  # - tenant: tenant_id to filter messages with
+  # - workflow: workflow key to filter messages with
+  """
+  @spec get_schedules(Client.t(), String.t(), String.t(), Keyword.t()) :: Api.response()
+  def get_schedules(client, collection, id, options \\ []) do
+    Api.get(client, "/objects/#{collection}/#{id}/schedules", query: options)
+  end
+
+  ##
   # Preferences
   ##
 
