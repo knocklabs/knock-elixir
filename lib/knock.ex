@@ -88,5 +88,5 @@ defmodule Knock do
   @doc """
   Issues a notify call, triggering a workflow with the given key.
   """
-  defdelegate notify(client, key, properties, options), to: Knock.Workflows, as: :trigger
+  defdelegate notify(client, key, properties, options \\ []), to: Knock.Workflows, as: :trigger
 end
