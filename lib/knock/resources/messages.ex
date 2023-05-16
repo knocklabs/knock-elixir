@@ -38,6 +38,31 @@ defmodule Knock.Messages do
   end
 
   @doc """
+  Sets status of message: seen, read, archived
+  """
+  @spec set_status(Client.t(), String.t(), String.t()) :: Api.response()
+  def set_status(client, message_id, status) do
+    Api.put(client, "/messages/#{message_id}/#{status}", %{})
+  end
+
+  @doc """
+  Unsets status of message: unseen, unread, unarchived
+  """
+  @spec unset_status(Client.t(), String.t(), String.t()) :: Api.response()
+  def unset_status(client, message_id, status) do
+    Api.delete(client, "/messages/#{message_id}/#{status}")
+  end
+
+  @doc """
+  Batch update messages statuses: seen, read, interacted, archived, unseen, unread,
+  unarchived
+  """
+  @spec batch_set_status(Client.t(), [String.t()], String.t()) :: Api.response()
+  def batch_set_status(client, message_ids, status) do
+    Api.post(client, "/messages/batch/#{status}", %{message_ids: message_ids})
+  end
+
+  @doc """
   Returns information about the message content.
   """
   @spec get_content(Client.t(), String.t()) :: Api.response()
