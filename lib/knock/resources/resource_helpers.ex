@@ -3,7 +3,7 @@ defmodule Knock.ResourceHelpers do
   Helpers for building resources API requests
   """
 
-  @spec maybe_json_encode_param(Keyword.t(), String.t()) :: Keyword.t()
+  @spec maybe_json_encode_param(Keyword.t(), atom()) :: Keyword.t()
   def maybe_json_encode_param(options, param_key) do
     case options[param_key] do
       param when is_map(param) ->
