@@ -13,6 +13,20 @@ defmodule Knock.Objects do
   @type ref :: %{id: :string, collection: :string}
 
   @doc """
+  Returns paginated list of objects for a collection
+
+  # Available optional parameters:
+  #
+  # - page_size: specify size of the page to be returned by the api. (max limit: 50)
+  # - after:  after cursor for pagination
+  # - before: before cursor for pagination
+  """
+  @spec list(Client.t(), String.t(), Keyword.t()) :: Api.response()
+  def list(client, collection, options \\ []) do
+    Api.get(client, "/objects/#{collection}", query: options)
+  end
+
+  @doc """
   Builds an object reference, which can be used in workflow trigger calls.
   """
   @spec build_ref(String.t(), String.t()) :: ref()

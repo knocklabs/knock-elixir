@@ -10,6 +10,20 @@ defmodule Knock.Users do
   @default_preference_set_id "default"
 
   @doc """
+  Returns paginated list of users
+
+  # Available optional parameters:
+  #
+  # - page_size: specify size of the page to be returned by the api. (max limit: 50)
+  # - after:  after cursor for pagination
+  # - before: before cursor for pagination
+  """
+  @spec list(Client.t(), Keyword.t()) :: Api.response()
+  def list(client, options \\ []) do
+    Api.get(client, "/users", query: options)
+  end
+
+  @doc """
   Returns information about the user from the `user_id` given.
   """
   @spec get_user(Client.t(), String.t()) :: Api.response()
