@@ -14,6 +14,9 @@ defmodule Knock.Users do
 
   # Available optional parameters:
   #
+  # - name: return user instances with matching name property
+  # - email: returns user instances with matching email property
+  # - user_id: returns user by matching user id
   # - page_size: specify size of the page to be returned by the api. (max limit: 50)
   # - after:  after cursor for pagination
   # - before: before cursor for pagination
@@ -322,6 +325,24 @@ defmodule Knock.Users do
   @spec get_schedules(Client.t(), String.t(), Keyword.t()) :: Api.response()
   def get_schedules(client, id, options \\ []) do
     Api.get(client, "/users/#{id}/schedules", query: options)
+  end
+
+  ##
+  # Subscriptions
+  ##
+
+  @doc """
+  Returns paginated subscriptions for the given user
+
+  # Available optional parameters:
+  #
+  # - page_size: specify size of the page to be returned by the api. (max limit: 50)
+  # - after:  after cursor for pagination
+  # - before: before cursor for pagination
+  """
+  @spec get_subscriptions(Client.t(), String.t(), Keyword.t()) :: Api.response()
+  def get_subscriptions(client, id, options \\ []) do
+    Api.get(client, "/users/#{id}/subscriptions", query: options)
   end
 
   defp build_setting_param(setting) when is_map(setting), do: setting
