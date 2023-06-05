@@ -17,8 +17,6 @@ defmodule Knock.Objects do
 
   # Available optional parameters:
   #
-  # - name: return object instances with matching name property
-  # - object_id: returns object by matching object id
   # - page_size: specify size of the page to be returned by the api. (max limit: 50)
   # - after:  after cursor for pagination
   # - before: before cursor for pagination
