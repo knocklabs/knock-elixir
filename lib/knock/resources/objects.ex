@@ -13,6 +13,20 @@ defmodule Knock.Objects do
   @type ref :: %{id: :string, collection: :string}
 
   @doc """
+  Returns paginated list of objects for a collection
+
+  # Available optional parameters:
+  #
+  # - page_size: specify size of the page to be returned by the api. (max limit: 50)
+  # - after:  after cursor for pagination
+  # - before: before cursor for pagination
+  """
+  @spec list(Client.t(), String.t(), Keyword.t()) :: Api.response()
+  def list(client, collection, options \\ []) do
+    Api.get(client, "/objects/#{collection}", query: options)
+  end
+
+  @doc """
   Builds an object reference, which can be used in workflow trigger calls.
   """
   @spec build_ref(String.t(), String.t()) :: ref()
@@ -136,6 +150,67 @@ defmodule Knock.Objects do
   @spec get_schedules(Client.t(), String.t(), String.t(), Keyword.t()) :: Api.response()
   def get_schedules(client, collection, id, options \\ []) do
     Api.get(client, "/objects/#{collection}/#{id}/schedules", query: options)
+  end
+
+  ##
+  # Subscriptions
+  ##
+
+  @doc """
+  Returns paginated subscriptions for the given object
+
+  # Available optional parameters:
+  #
+  # - page_size: specify size of the page to be returned by the api. (max limit: 50)
+  # - after:  after cursor for pagination
+  # - before: before cursor for pagination
+  """
+  @spec list_subscriptions(Client.t(), String.t(), String.t(), Keyword.t()) :: Api.response()
+  def list_subscriptions(client, collection, id, options \\ []) do
+    Api.get(client, "/objects/#{collection}/#{id}/subscriptions", query: options)
+  end
+
+  @doc """
+  Returns paginated subscriptions for the given object as recipient
+
+  # Available optional parameters:
+  #
+  # - page_size: specify size of the page to be returned by the api. (max limit: 50)
+  # - after:  after cursor for pagination
+  # - before: before cursor for pagination
+  """
+  @spec get_subscriptions(Client.t(), String.t(), String.t(), Keyword.t()) :: Api.response()
+  def get_subscriptions(client, collection, id, options \\ []) do
+    options = Keyword.put(options, :mode, "recipient")
+    Api.get(client, "/objects/#{collection}/#{id}/subscriptions", query: options)
+  end
+
+  @doc """
+  Adds subscriptions for all recipients passed as arguments
+
+  Expected properties:
+  - recipients: list of recipients to create subscriptions for
+  - properties: data to be stored at the subscription level for each recipient
+  """
+  @spec add_subscriptions(Client.t(), String.t(), String.t(), map()) :: Api.response()
+  def add_subscriptions(client, collection, id, params) do
+    Api.post(client, "/objects/#{collection}/#{id}/subscriptions", params)
+  end
+
+  @doc """
+  Delete subscriptions for recipients passed as arguments
+
+  Expected properties:
+  - recipients: list of recipients to create subscriptions for
+  """
+  @spec delete_subscriptions(Client.t(), String.t(), String.t(), [String.t() | map()]) ::
+          Api.response()
+  def delete_subscriptions(client, collection, id, params) do
+    recipients = Map.get(params, :recipients)
+
+    Api.delete(client, "/objects/#{collection}/#{id}/subscriptions",
+      body: %{recipients: recipients}
+    )
   end
 
   ##

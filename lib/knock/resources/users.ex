@@ -10,6 +10,20 @@ defmodule Knock.Users do
   @default_preference_set_id "default"
 
   @doc """
+  Returns paginated list of users
+
+  # Available optional parameters:
+  #
+  # - page_size: specify size of the page to be returned by the api. (max limit: 50)
+  # - after:  after cursor for pagination
+  # - before: before cursor for pagination
+  """
+  @spec list(Client.t(), Keyword.t()) :: Api.response()
+  def list(client, options \\ []) do
+    Api.get(client, "/users", query: options)
+  end
+
+  @doc """
   Returns information about the user from the `user_id` given.
   """
   @spec get_user(Client.t(), String.t()) :: Api.response()
@@ -308,6 +322,24 @@ defmodule Knock.Users do
   @spec get_schedules(Client.t(), String.t(), Keyword.t()) :: Api.response()
   def get_schedules(client, id, options \\ []) do
     Api.get(client, "/users/#{id}/schedules", query: options)
+  end
+
+  ##
+  # Subscriptions
+  ##
+
+  @doc """
+  Returns paginated subscriptions for the given user
+
+  # Available optional parameters:
+  #
+  # - page_size: specify size of the page to be returned by the api. (max limit: 50)
+  # - after:  after cursor for pagination
+  # - before: before cursor for pagination
+  """
+  @spec get_subscriptions(Client.t(), String.t(), Keyword.t()) :: Api.response()
+  def get_subscriptions(client, id, options \\ []) do
+    Api.get(client, "/users/#{id}/subscriptions", query: options)
   end
 
   defp build_setting_param(setting) when is_map(setting), do: setting
