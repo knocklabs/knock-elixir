@@ -202,12 +202,15 @@ defmodule Knock.Objects do
 
   Expected properties:
   - recipients: list of recipients to create subscriptions for
-  - properties: data to be stored at the subscription level for each recipient
   """
   @spec delete_subscriptions(Client.t(), String.t(), String.t(), [String.t() | map()]) ::
           Api.response()
-  def delete_subscriptions(client, collection, id, recipients) do
-    Api.post(client, "/objects/#{collection}/#{id}/subscriptions", %{recipients: recipients})
+  def delete_subscriptions(client, collection, id, params) do
+    recipients = Map.get(params, :recipients)
+
+    Api.delete(client, "/objects/#{collection}/#{id}/subscriptions",
+      body: %{recipients: recipients}
+    )
   end
 
   ##
