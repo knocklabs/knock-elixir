@@ -76,6 +76,23 @@ defmodule Knock.Objects do
     Api.post(client, "/objects/#{collection}/bulk/delete", %{object_ids: object_ids})
   end
 
+  @doc """
+  Creates a bulk operation to create subscriptions for a set of recipients to a
+  set of objects within the given collection.
+
+  Each entry in the provided subscriptions list should have the properties:
+
+  - id: the id of an object for subscribing
+  - recipients: a list of recipients to subscribe to the object
+  - properties (optional): a map of properties to apply to each recipient subscription
+  """
+  @spec bulk_add_subscriptions(Client.t(), String.t(), [map()]) :: Api.response()
+  def bulk_add_subscriptions(client, collection, subscriptions) do
+    Api.post(client, "/objects/#{collection}/bulk/subscriptions/add", %{
+      subscriptions: subscriptions
+    })
+  end
+
   ##
   # Channel data
   ##
@@ -198,30 +215,17 @@ defmodule Knock.Objects do
   end
 
   @doc """
-  Creates a bulk operation to create subscriptions for a set of recipients to a
-  set of objects within the given collection.
-
-  Each entry in the provided subscriptions list should have the properties:
-
-  - id: the id of an object for subscribing
-  - recipients: a list of recipients to subscribe to the object
-  - properties (optional): a map of properties to apply to each recipient subscription
-  """
-  @spec bulk_add_subscriptions(Client.t(), String.t(), [map()])
-  def bulk_add_subscriptions(client, collection, subscriptions) do
-    Api.post(client, "/objects/#{collection}/bulk/subscriptions/add", %{
-      subscriptions: subscriptions
-    })
-  end
-
-  @doc """
   Delete subscriptions for recipients passed as arguments
 
   Expected properties:
   - recipients: list of recipients to create subscriptions for
   """
-  @spec delete_subscriptions(Client.t(), String.t(), String.t(), [String.t() | map()]) ::
-          Api.response()
+  @spec delete_subscriptions(
+          Client.t(),
+          String.t(),
+          String.t(),
+          %{recipients: [String.t() | map()]}
+        ) :: Api.response()
   def delete_subscriptions(client, collection, id, params) do
     recipients = Map.get(params, :recipients)
 
