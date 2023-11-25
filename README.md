@@ -151,7 +151,7 @@ claims = %{
   # When the token was issued
   "iat" => DateTime.to_unix(now),
   # When the token expires (1 hour)
-  "exp" => DateTime.add(now, 3600, :seconds) |> DateTime.to_unix()
+  "exp" => DateTime.add(now, 3600, :second) |> DateTime.to_unix()
 }
 
 
