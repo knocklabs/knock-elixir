@@ -29,8 +29,8 @@ defmodule Knock.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:tesla, "~> 1.4.1"},
-      {:hackney, "~> 1.18.0"},
+      {:tesla, "~> 1.4"},
+      {:hackney, "~> 1.18"},
       {:jason, "~> 1.1"},
       {:ex_doc, "~> 0.14", only: :dev, runtime: false}
     ]
