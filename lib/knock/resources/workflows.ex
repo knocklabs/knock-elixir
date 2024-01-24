@@ -38,7 +38,7 @@ defmodule Knock.Workflows do
   - actor: actor to be used when trigger the target workflow
   - repeats: repeat rules to specify when the workflow must be triggered
   - data: data to be used as variables when the workflow runs
-  - tenant: tenant id to be used for when the workflow runs
+  - tenant: tenant to be used for when the workflow runs
   """
   @spec create_schedules(Knock.Client.t(), String.t(), map()) :: Api.response()
   def create_schedules(client, key, properties \\ %{}) do
@@ -53,7 +53,7 @@ defmodule Knock.Workflows do
   - actor: actor to be used when trigger the target workflow
   - repeats: repeat rules to specify when the workflow must be triggered
   - data: data to be used as variables when the workflow runs
-  - tenant: tenant id to be used for when the workflow runs
+  - tenant: tenant to be used for when the workflow runs
   """
   @spec update_schedules(Knock.Client.t(), [String.t()], map()) :: Api.response()
   def update_schedules(client, schedule_ids, properties \\ %{}) do
