@@ -71,6 +71,16 @@ defmodule Knock.Messages do
   end
 
   @doc """
+  Returns information about the message content in batches.
+  """
+  @spec batch_get_content(Client.t(), [String.t()]) :: Api.response()
+  def batch_get_content(client, message_ids) do
+    query = maybe_json_encode_param(%{message_ids: message_ids})
+
+    Api.get(client, "/messages/batch/content", query: query)
+  end
+
+  @doc """
   Returns a paginated response with message's activities.
 
   # Available optional parameters:
