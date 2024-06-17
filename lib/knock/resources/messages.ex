@@ -75,9 +75,7 @@ defmodule Knock.Messages do
   """
   @spec batch_get_content(Client.t(), [String.t()]) :: Api.response()
   def batch_get_content(client, message_ids) do
-    query = maybe_json_encode_param(%{message_ids: message_ids})
-
-    Api.get(client, "/messages/batch/content", query: query)
+    Api.get(client, "/messages/batch/content", query: [message_ids: message_ids])
   end
 
   @doc """
