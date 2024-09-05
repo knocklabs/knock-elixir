@@ -46,7 +46,8 @@ defmodule Knock do
   ```elixir
   config :my_app, Knock,
     adapter: Tesla.Adapter.Finch,
-    json_client: JSX
+    json_client: JSX,
+    middleware_callback: &MyApp.Tesla.middleware_callback/1
   ```
 
   You can read more about the availble adapters in the [Tesla documentation](https://hexdocs.pm/tesla/readme.html#adapters)
