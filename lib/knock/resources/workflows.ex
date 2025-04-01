@@ -94,11 +94,13 @@ defmodule Knock.Workflows do
   The endpoint returns a BulkOperation.
 
   Each schedule in the list should contain:
-  - recipients: list of recipients for schedules to be created for
+  - recipient: recipient for the schedule to be created for
   - actor: actor to be used when trigger the target workflow
   - repeats: repeat rules to specify when the workflow must be triggered
   - data: data to be used as variables when the workflow runs
   - tenant: tenant to be used for when the workflow runs
+  - scheduled_at: ISO-8601 formatted date time for when the schedule should start
+  - ending_at: ISO-8601 formatted date time for when the schedule should end
   """
   @spec bulk_create_schedules(Knock.Client.t(), [map()]) :: Api.response()
   def bulk_create_schedules(client, schedules) do
