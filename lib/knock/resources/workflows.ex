@@ -86,4 +86,22 @@ defmodule Knock.Workflows do
   def delete_schedules(client, schedule_ids) do
     Api.delete(client, "/schedules", body: %{schedule_ids: schedule_ids})
   end
+
+  @doc """
+  Creates schedule instances in bulk.
+
+  Accepts a list of schedules and creates them asynchronously.
+  The endpoint returns a BulkOperation.
+
+  Each schedule in the list should contain:
+  - recipients: list of recipients for schedules to be created for
+  - actor: actor to be used when trigger the target workflow
+  - repeats: repeat rules to specify when the workflow must be triggered
+  - data: data to be used as variables when the workflow runs
+  - tenant: tenant to be used for when the workflow runs
+  """
+  @spec bulk_create_schedules(Knock.Client.t(), [map()]) :: Api.response()
+  def bulk_create_schedules(client, schedules) do
+    Api.post(client, "/schedules/bulk/create", %{schedules: schedules})
+  end
 end
