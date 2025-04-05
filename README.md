@@ -72,7 +72,7 @@ MyApp.Knock.client()
 
 ```elixir
 MyApp.Knock.client()
-|> Knock.notify("dinosaurs-loose", %{
+|> Knock.Workflows.trigger("dinosaurs-loose", %{
   # user id of who performed the action
   "actor" => "dnedry",
   # list of user ids for who should receive the notif
