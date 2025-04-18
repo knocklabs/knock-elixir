@@ -2,7 +2,7 @@ defmodule Knock.MixProject do
   use Mix.Project
 
   @source_url "https://github.com/knocklabs/knock-elixir"
-  @version "0.4.17"
+  @version "0.4.18"
 
   def project do
     [
