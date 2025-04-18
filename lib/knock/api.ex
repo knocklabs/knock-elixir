@@ -15,7 +15,7 @@ defmodule Knock.Api do
   @typedoc """
   Defines available options to pass to an API function
   """
-  @type options :: [Tesla.option()] | []
+  @type options :: [Tesla.option() | {:idempotency_key, binary()}] | []
 
   @doc """
   Executes a get request against the Knock api.
@@ -91,8 +91,8 @@ defmodule Knock.Api do
     Tesla.client(middleware, config.adapter)
   end
 
-  defp maybe_idempotency_key_header(%{idempotency_key: key}) when is_binary(key),
-    do: [{"Idempotency-Key", key}]
+  defp maybe_idempotency_key_header(%{idempotency_key: key}) when not is_nil(key),
+    do: [{"Idempotency-Key", to_string(key)}]
 
   defp maybe_idempotency_key_header(_), do: []
 end
