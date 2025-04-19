@@ -88,6 +88,8 @@ defmodule Knock.Api do
        ] ++ maybe_idempotency_key_header(Map.new(opts))}
     ]
 
+    middleware = (config.middleware_callback || & &1).(middleware)
+
     Tesla.client(middleware, config.adapter)
   end
 
