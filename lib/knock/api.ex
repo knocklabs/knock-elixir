@@ -15,7 +15,7 @@ defmodule Knock.Api do
   @typedoc """
   Defines available options to pass to an API function
   """
-  @type options :: [Tesla.option() | {:idempotency_key, binary()}] | []
+  @type options :: [Tesla.option() | {:idempotency_key, String.Chars.t()}] | []
 
   @doc """
   Executes a get request against the Knock api.
@@ -33,9 +33,11 @@ defmodule Knock.Api do
   """
   @spec put(Client.t(), String.t(), map(), options()) :: response()
   def put(client, path, body, opts \\ []) do
+    {client_opts, tesla_opts} = Keyword.split(opts, [:idempotency_key])
+
     client
-    |> http_client(opts)
-    |> Tesla.put(path, body, opts)
+    |> http_client(client_opts)
+    |> Tesla.put(path, body, tesla_opts)
     |> handle_response()
   end
 
@@ -44,9 +46,11 @@ defmodule Knock.Api do
   """
   @spec post(Client.t(), String.t(), map(), options()) :: response()
   def post(client, path, body, opts \\ []) do
+    {client_opts, tesla_opts} = Keyword.split(opts, [:idempotency_key])
+
     client
-    |> http_client(opts)
-    |> Tesla.post(path, body, opts)
+    |> http_client(client_opts)
+    |> Tesla.post(path, body, tesla_opts)
     |> handle_response()
   end
 
@@ -55,9 +59,11 @@ defmodule Knock.Api do
   """
   @spec delete(Client.t(), String.t(), options()) :: response()
   def delete(client, path, opts \\ []) do
+    {client_opts, tesla_opts} = Keyword.split(opts, [:idempotency_key])
+
     client
-    |> http_client()
-    |> Tesla.delete(path, opts)
+    |> http_client(client_opts)
+    |> Tesla.delete(path, tesla_opts)
     |> handle_response()
   end
 
