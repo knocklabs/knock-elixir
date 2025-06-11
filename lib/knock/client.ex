@@ -14,7 +14,8 @@ defmodule Knock.Client do
   defstruct host: "https://api.knock.app",
             api_key: nil,
             adapter: Tesla.Adapter.Hackney,
-            json_client: Jason
+            json_client: Jason,
+            middleware_callback: nil
 
   @typedoc """
   Describes a Knock client
@@ -23,7 +24,8 @@ defmodule Knock.Client do
           host: String.t(),
           api_key: String.t(),
           adapter: atom(),
-          json_client: atom()
+          json_client: atom(),
+          middleware_callback: ([atom()] -> [atom()])
         }
 
   @doc """
@@ -36,7 +38,7 @@ defmodule Knock.Client do
       raise Knock.ApiKeyMissingError
     end
 
-    opts = Keyword.take(opts, [:host, :api_key, :adapter, :json_client])
+    opts = Keyword.take(opts, [:host, :api_key, :adapter, :json_client, :middleware_callback])
     struct!(__MODULE__, opts)
   end
 end
