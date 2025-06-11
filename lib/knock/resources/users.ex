@@ -12,11 +12,11 @@ defmodule Knock.Users do
   @doc """
   Returns paginated list of users
 
-  # Available optional parameters:
-  #
-  # - page_size: specify size of the page to be returned by the api. (max limit: 50)
-  # - after:  after cursor for pagination
-  # - before: before cursor for pagination
+  ## Available optional parameters:
+
+  * `:page_size` - specify size of the page to be returned by the api. (max limit: 50)
+  * `:after` - after cursor for pagination
+  * `before` - before cursor for pagination
   """
   @spec list(Client.t(), Keyword.t()) :: Api.response()
   def list(client, options \\ []) do
@@ -60,16 +60,16 @@ defmodule Knock.Users do
   Returns a feed for the user with the given channel_id. Optionally supports all of the options
   for fetching the feed.
 
-  # Available optional parameters:
-  #
-  # - page_size: specify size of the page to be returned by the api. (max limit: 50)
-  # - after:  after cursor for pagination
-  # - before: before cursor for pagination
-  # - status: list of statuses to filter feed items with
-  # - tenant: tenant_id to filter messages with
-  # - has_tenant: optionally scope items by a tenant id or no tenant
-  # - archived: scope items by a given archived status (defaults to "exclude")
-  # - trigger_data: trigger payload to filter feed items with
+  ## Available optional parameters:
+
+  * `:page_size` - specify size of the page to be returned by the api. (max limit: 50)
+  * `:after` - after cursor for pagination
+  * `:before` - before cursor for pagination
+  * `:status` - list of statuses to filter feed items with
+  * `:tenant` - tenant_id to filter messages with
+  * `:has_tenant` - optionally scope items by a tenant id or no tenant
+  * `:archived` - scope items by a given archived status (defaults to "exclude")
+  * `:trigger_data` - trigger payload to filter feed items with
   """
   @spec get_feed(Client.t(), String.t(), String.t(), Keyword.t()) :: Api.response()
   def get_feed(client, user_id, channel_id, options \\ []) do
@@ -286,16 +286,16 @@ defmodule Knock.Users do
   @doc """
   Returns paginated messages for the given user
 
-  # Available optional parameters:
-  #
-  # - page_size: specify size of the page to be returned by the api. (max limit: 50)
-  # - after:  after cursor for pagination
-  # - before: before cursor for pagination
-  # - status: list of statuses to filter messages with
-  # - tenant: tenant_id to filter messages with
-  # - channel_id: channel_id to filter messages with
-  # - source: workflow key to filter messages with
-  # - trigger_data: trigger payload to filter messages with
+  ## Available optional parameters:
+
+  * `:page_size` - specify size of the page to be returned by the api. (max limit: 50)
+  * `:after` - after cursor for pagination
+  * `:before` - before cursor for pagination
+  * `:status` - list of statuses to filter messages with
+  * `:tenant` - tenant_id to filter messages with
+  * `:channel_id` - channel_id to filter messages with
+  * `:source` - workflow key to filter messages with
+  * `:trigger_data` - trigger payload to filter messages with
   """
   @spec get_messages(Client.t(), String.t(), Keyword.t()) :: Api.response()
   def get_messages(client, id, options \\ []) do
@@ -311,13 +311,13 @@ defmodule Knock.Users do
   @doc """
   Returns paginated schedules for the given user
 
-  # Available optional parameters:
-  #
-  # - page_size: specify size of the page to be returned by the api. (max limit: 50)
-  # - after:  after cursor for pagination
-  # - before: before cursor for pagination
-  # - tenant: tenant_id to filter messages with
-  # - workflow: workflow key to filter messages with
+  ## Available optional parameters:
+
+  * `:page_size` - specify size of the page to be returned by the api. (max limit: 50)
+  * `:after` - after cursor for pagination
+  * `:before` - before cursor for pagination
+  * `:tenant` - tenant_id to filter messages with
+  * `:workflow` - workflow key to filter messages with
   """
   @spec get_schedules(Client.t(), String.t(), Keyword.t()) :: Api.response()
   def get_schedules(client, id, options \\ []) do
@@ -331,11 +331,11 @@ defmodule Knock.Users do
   @doc """
   Returns paginated subscriptions for the given user
 
-  # Available optional parameters:
-  #
-  # - page_size: specify size of the page to be returned by the api. (max limit: 50)
-  # - after:  after cursor for pagination
-  # - before: before cursor for pagination
+  ## Available optional parameters:
+
+  * `:page_size` - specify size of the page to be returned by the api. (max limit: 50)
+  * `:after` - after cursor for pagination
+  * `:before` - before cursor for pagination
   """
   @spec get_subscriptions(Client.t(), String.t(), Keyword.t()) :: Api.response()
   def get_subscriptions(client, id, options \\ []) do
