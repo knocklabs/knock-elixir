@@ -36,7 +36,23 @@ defmodule Knock.Client do
       raise Knock.ApiKeyMissingError
     end
 
-    opts = Keyword.take(opts, [:host, :api_key, :adapter, :json_client])
+    opts =
+      opts
+      |> Keyword.take([:host, :api_key, :adapter, :json_client])
+      |> Map.new()
+      |> maybe_set_adapter_default()
+
     struct!(__MODULE__, opts)
+  end
+
+  defp maybe_set_adapter_default(%{adapter: adapter} = opts) when not is_nil(adapter),
+    do: opts
+
+  defp maybe_set_adapter_default(opts) do
+    # Use the default adapter if one is not provided (if set using Tesla)
+    case Application.get_env(:tesla, :adapter) do
+      default when not is_nil(default) -> Map.put(opts, :adapter, default)
+      _ -> opts
+    end
   end
 end
