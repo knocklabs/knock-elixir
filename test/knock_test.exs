@@ -38,14 +38,15 @@ defmodule KnockTest do
     test "if set, will use the Tesla default adapter if one is not provided" do
       Application.put_env(:tesla, :adapter, Tesla.Adapter.Hackney)
 
-      knock = TestClient.client()
+      knock = TestClient.client(api_key: "sk_test_12345")
       assert knock.adapter == Tesla.Adapter.Hackney
 
       Application.delete_env(:tesla, :adapter)
     end
 
     test "it can set the adapter to a custom one" do
-      knock = TestClient.client(adapter: Tesla.Adapter.Mint)
+      knock = TestClient.client(adapter: Tesla.Adapter.Mint, api_key: "sk_test_12345")
+
       assert knock.adapter == Tesla.Adapter.Mint
     end
   end
