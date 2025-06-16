@@ -45,7 +45,8 @@ defmodule KnockTest do
     end
 
     test "it can set the adapter to a custom one" do
-      knock = TestClient.client(adapter: Tesla.Adapter.Mint)
+      knock = TestClient.client(adapter: Tesla.Adapter.Mint, api_key: "sk_test_12345")
+
       assert knock.adapter == Tesla.Adapter.Mint
     end
   end
