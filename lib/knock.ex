@@ -56,6 +56,7 @@ defmodule Knock do
     quote do
       @app_name Keyword.fetch!(unquote(opts), :otp_app)
       @api_key_env_var "KNOCK_API_KEY"
+      @branch_env_var "KNOCK_BRANCH"
 
       alias Knock.Client
 
@@ -72,6 +73,7 @@ defmodule Knock do
       defp fetch_options(overrides) do
         Application.get_env(@app_name, __MODULE__, [])
         |> maybe_resolve_api_key()
+        |> maybe_resolve_branch()
         |> Keyword.merge(overrides)
       end
 
@@ -80,6 +82,14 @@ defmodule Knock do
           api_key when is_binary(api_key) -> opts
           {:system, var_name} -> Keyword.put(opts, :api_key, System.get_env(var_name))
           _ -> Keyword.put(opts, :api_key, System.get_env(@api_key_env_var))
+        end
+      end
+
+      defp maybe_resolve_branch(opts) do
+        case Keyword.get(opts, :branch) do
+          branch when is_binary(branch) -> opts
+          {:system, var_name} -> Keyword.put(opts, :branch, System.get_env(var_name))
+          _ -> Keyword.put(opts, :branch, System.get_env(@branch_env_var))
         end
       end
     end

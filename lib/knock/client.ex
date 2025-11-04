@@ -7,12 +7,16 @@ defmodule Knock.Client do
   ```elixir
   # Setup a client instance directly
   client = Knock.Client.new(api_key: "sk_test_12345")
+
+  # With optional branch
+  client = Knock.Client.new(api_key: "sk_test_12345", branch: "my-feature-branch")
   ```
   """
 
   @enforce_keys [:api_key]
   defstruct host: "https://api.knock.app",
             api_key: nil,
+            branch: nil,
             adapter: Tesla.Adapter.Hackney,
             json_client: Jason
 
@@ -22,6 +26,7 @@ defmodule Knock.Client do
   @type t :: %__MODULE__{
           host: String.t(),
           api_key: String.t(),
+          branch: String.t() | nil,
           adapter: atom(),
           json_client: atom()
         }
@@ -38,7 +43,7 @@ defmodule Knock.Client do
 
     opts =
       opts
-      |> Keyword.take([:host, :api_key, :adapter, :json_client])
+      |> Keyword.take([:host, :api_key, :branch, :adapter, :json_client])
       |> Map.new()
       |> maybe_set_adapter_default()
 
