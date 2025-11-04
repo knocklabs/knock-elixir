@@ -49,7 +49,7 @@ defmodule Knock do
     json_client: JSX
   ```
 
-  You can read more about the availble adapters in the [Tesla documentation](https://hexdocs.pm/tesla/readme.html#adapters)
+  You can read more about the available adapters in the [Tesla documentation](https://hexdocs.pm/tesla/readme.html#adapters)
   """
 
   defmacro __using__(opts) do
