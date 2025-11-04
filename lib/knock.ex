@@ -50,6 +50,20 @@ defmodule Knock do
   ```
 
   You can read more about the available adapters in the [Tesla documentation](https://hexdocs.pm/tesla/readme.html#adapters)
+
+  To use a branch, set the `branch` option in your configuration or client instance.
+
+  ```elixir
+  # config/runtime.exs
+
+  config :my_app, MyApp.KnockClient,
+    api_key: "sk_12345",
+    branch: "my-feature-branch"
+
+  # OR
+
+  knock_client = MyApp.Knock.client(api_key: "sk_12345", branch: "my-feature-branch")
+  ```
   """
 
   defmacro __using__(opts) do
