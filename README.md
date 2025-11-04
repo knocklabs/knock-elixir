@@ -49,6 +49,24 @@ Or you can pass it through when creating a client instance:
 knock_client = MyApp.Knock.client(api_key: "sk_12345")
 ```
 
+To use a branch, set the `branch` option in your configuration or client instance:
+
+```elixir
+config :my_app, MyApp.Knock,
+  api_key: "sk_12345"
+  branch: "my-feature-branch"
+
+# OR
+
+knock_client = MyApp.Knock.client(api_key: "sk_12345", branch: "my-feature-branch")
+```
+
+Alternatively, you can set it as an environment variable:
+
+```bash
+KNOCK_BRANCH="my-feature-branch"
+```
+
 ## Usage
 
 ### Identifying users
