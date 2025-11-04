@@ -14,6 +14,14 @@ defmodule KnockTest do
       assert knock.adapter == Tesla.Adapter.Hackney
       assert knock.json_client == Jason
       assert knock.host == "https://api.knock.app"
+      assert knock.branch == nil
+    end
+
+    test "it allows configuring a branch" do
+      knock = TestClient.client(api_key: "sk_test_12345", branch: "my-feature-branch")
+
+      assert knock.api_key == "sk_test_12345"
+      assert knock.branch == "my-feature-branch"
     end
 
     test "it will default to reading the api key from env vars" do
@@ -24,7 +32,18 @@ defmodule KnockTest do
       assert knock.api_key == "sk_test_12345"
     end
 
-    test "it can read from application config" do
+    test "it will default to reading the branch from env vars" do
+      System.put_env("KNOCK_API_KEY", "sk_test_12345")
+      System.put_env("KNOCK_BRANCH", "test-branch")
+
+      knock = TestClient.client()
+
+      assert knock.branch == "test-branch"
+
+      System.delete_env("KNOCK_BRANCH")
+    end
+
+    test "it can read the api key from application config" do
       Application.put_env(:knock, KnockTest.TestClient,
         api_key: "sk_test_12345",
         foo: "bar"
@@ -33,6 +52,20 @@ defmodule KnockTest do
       knock = TestClient.client()
 
       assert knock.api_key == "sk_test_12345"
+    end
+
+    test "it can read the branch from application config" do
+      Application.put_env(:knock, KnockTest.TestClient,
+        api_key: "sk_test_12345",
+        branch: "config-branch"
+      )
+
+      knock = TestClient.client()
+
+      assert knock.api_key == "sk_test_12345"
+      assert knock.branch == "config-branch"
+
+      Application.delete_env(:knock, KnockTest.TestClient)
     end
 
     test "if set, will use the Tesla default adapter if one is not provided" do
