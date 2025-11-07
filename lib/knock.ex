@@ -49,13 +49,28 @@ defmodule Knock do
     json_client: JSX
   ```
 
-  You can read more about the availble adapters in the [Tesla documentation](https://hexdocs.pm/tesla/readme.html#adapters)
+  You can read more about the available adapters in the [Tesla documentation](https://hexdocs.pm/tesla/readme.html#adapters)
+
+  To use a branch, set the `branch` option in your configuration or client instance.
+
+  ```elixir
+  # config/runtime.exs
+
+  config :my_app, MyApp.KnockClient,
+    api_key: "sk_12345",
+    branch: "my-feature-branch"
+
+  # OR
+
+  knock_client = MyApp.Knock.client(api_key: "sk_12345", branch: "my-feature-branch")
+  ```
   """
 
   defmacro __using__(opts) do
     quote do
       @app_name Keyword.fetch!(unquote(opts), :otp_app)
       @api_key_env_var "KNOCK_API_KEY"
+      @branch_env_var "KNOCK_BRANCH"
 
       alias Knock.Client
 
@@ -72,6 +87,7 @@ defmodule Knock do
       defp fetch_options(overrides) do
         Application.get_env(@app_name, __MODULE__, [])
         |> maybe_resolve_api_key()
+        |> maybe_resolve_branch()
         |> Keyword.merge(overrides)
       end
 
@@ -80,6 +96,14 @@ defmodule Knock do
           api_key when is_binary(api_key) -> opts
           {:system, var_name} -> Keyword.put(opts, :api_key, System.get_env(var_name))
           _ -> Keyword.put(opts, :api_key, System.get_env(@api_key_env_var))
+        end
+      end
+
+      defp maybe_resolve_branch(opts) do
+        case Keyword.get(opts, :branch) do
+          branch when is_binary(branch) -> opts
+          {:system, var_name} -> Keyword.put(opts, :branch, System.get_env(var_name))
+          _ -> Keyword.put(opts, :branch, System.get_env(@branch_env_var))
         end
       end
     end

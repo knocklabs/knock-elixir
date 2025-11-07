@@ -91,7 +91,9 @@ defmodule Knock.Api do
        [
          {"Authorization", "Bearer " <> config.api_key},
          {"User-Agent", "knocklabs/knock-elixir@#{library_version()}"}
-       ] ++ maybe_idempotency_key_header(Map.new(opts))}
+       ] ++
+         maybe_idempotency_key_header(Map.new(opts)) ++
+         maybe_branch_header(config)}
     ]
 
     Tesla.client(middleware, config.adapter)
@@ -101,4 +103,9 @@ defmodule Knock.Api do
     do: [{"Idempotency-Key", to_string(key)}]
 
   defp maybe_idempotency_key_header(_), do: []
+
+  defp maybe_branch_header(%{branch: branch}) when not is_nil(branch),
+    do: [{"X-Knock-Branch", to_string(branch)}]
+
+  defp maybe_branch_header(_), do: []
 end
