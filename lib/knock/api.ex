@@ -84,17 +84,18 @@ defmodule Knock.Api do
   def library_version, do: @lib_version
 
   defp http_client(config, opts \\ []) do
-    middleware = [
-      {Tesla.Middleware.BaseUrl, config.host <> "/v1"},
-      {Tesla.Middleware.JSON, engine: config.json_client},
-      {Tesla.Middleware.Headers,
-       [
-         {"Authorization", "Bearer " <> config.api_key},
-         {"User-Agent", "knocklabs/knock-elixir@#{library_version()}"}
-       ] ++
-         maybe_idempotency_key_header(Map.new(opts)) ++
-         maybe_branch_header(config)}
-    ]
+    middleware =
+      [
+        {Tesla.Middleware.BaseUrl, config.host <> "/v1"},
+        {Tesla.Middleware.JSON, engine: config.json_client},
+        {Tesla.Middleware.Headers,
+         [
+           {"Authorization", "Bearer " <> config.api_key},
+           {"User-Agent", "knocklabs/knock-elixir@#{library_version()}"}
+         ] ++
+           maybe_idempotency_key_header(Map.new(opts)) ++
+           maybe_branch_header(config)}
+      ] ++ maybe_additional_middlewares(config)
 
     Tesla.client(middleware, config.adapter)
   end
@@ -108,4 +109,10 @@ defmodule Knock.Api do
     do: [{"X-Knock-Branch", to_string(branch)}]
 
   defp maybe_branch_header(_), do: []
+
+  defp maybe_additional_middlewares(%{additional_middlewares: middlewares})
+       when is_list(middlewares),
+       do: middlewares
+
+  defp maybe_additional_middlewares(_), do: []
 end

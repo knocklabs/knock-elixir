@@ -82,5 +82,27 @@ defmodule KnockTest do
 
       assert knock.adapter == Tesla.Adapter.Mint
     end
+
+    test "it can accept additional middlewares as a list" do
+      knock =
+        TestClient.client(
+          api_key: "sk_test_12345",
+          additional_middlewares: [
+            {Tesla.Middleware.Logger, level: :debug},
+            Tesla.Middleware.Retry
+          ]
+        )
+
+      assert knock.additional_middlewares == [
+               {Tesla.Middleware.Logger, level: :debug},
+               Tesla.Middleware.Retry
+             ]
+    end
+
+    test "it defaults to empty list for additional middlewares" do
+      knock = TestClient.client(api_key: "sk_test_12345")
+
+      assert knock.additional_middlewares == []
+    end
   end
 end

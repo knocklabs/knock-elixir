@@ -10,7 +10,29 @@ defmodule Knock.Client do
 
   # With optional branch
   client = Knock.Client.new(api_key: "sk_test_12345", branch: "my-feature-branch")
+
+  # With custom Tesla middleware
+  client = Knock.Client.new(
+    api_key: "sk_test_12345",
+    additional_middlewares: [
+      {Tesla.Middleware.Logger, level: :debug, filter_headers: ["Authorization"]},
+      Tesla.Middleware.Retry
+    ]
+  )
   ```
+
+  ### Custom middleware
+
+  You can add custom Tesla middleware to the HTTP client by passing the `:additional_middlewares`
+  option when creating a client. This is useful for adding logging, retry logic, or other
+  custom behavior to HTTP requests without modifying the library itself.
+
+  Middleware can be specified as either:
+  - A module atom: `Tesla.Middleware.Retry`
+  - A tuple with module and options: `{Tesla.Middleware.Logger, level: :debug, filter_headers: ["Authorization"]}`
+
+  The additional middlewares are appended to the end of the middleware chain, after the
+  built-in middlewares (BaseUrl, JSON, and Headers).
   """
 
   @enforce_keys [:api_key]
@@ -18,7 +40,8 @@ defmodule Knock.Client do
             api_key: nil,
             branch: nil,
             adapter: Tesla.Adapter.Hackney,
-            json_client: Jason
+            json_client: Jason,
+            additional_middlewares: []
 
   @typedoc """
   Describes a Knock client
@@ -28,7 +51,8 @@ defmodule Knock.Client do
           api_key: String.t(),
           branch: String.t() | nil,
           adapter: atom(),
-          json_client: atom()
+          json_client: atom(),
+          additional_middlewares: [module() | {module(), any()}]
         }
 
   @doc """
@@ -43,7 +67,7 @@ defmodule Knock.Client do
 
     opts =
       opts
-      |> Keyword.take([:host, :api_key, :branch, :adapter, :json_client])
+      |> Keyword.take([:host, :api_key, :branch, :adapter, :json_client, :additional_middlewares])
       |> Map.new()
       |> maybe_set_adapter_default()
 
