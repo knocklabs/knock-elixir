@@ -2,52 +2,33 @@ defmodule Knock.ApiTest do
   use ExUnit.Case
 
   alias Knock.Client
-  alias Knock.Api
   @moduletag capture_log: true
 
-  describe "http_client with additional_middlewares" do
-    test "includes custom middleware in the Tesla client" do
+  describe "client with req_options" do
+    test "stores custom req_options in the client struct" do
       client =
         Client.new(
           api_key: "sk_test_12345",
-          additional_middlewares: [
-            {Tesla.Middleware.Logger, level: :debug},
-            Tesla.Middleware.Retry
-          ]
+          req_options: [connect_options: [timeout: 30_000]]
         )
 
-      # Create the Tesla client through a private function call
-      # We'll use the get/3 function which internally calls http_client
-      # and verify the client structure
-      _tesla_client =
-        client
-        |> Api.get("/test")
-        |> case do
-          {:error, _} -> :ok
-          _ -> :ok
-        end
-
-      # The test mainly ensures no errors occur when additional_middlewares are set
-      assert client.additional_middlewares == [
-               {Tesla.Middleware.Logger, level: :debug},
-               Tesla.Middleware.Retry
-             ]
+      assert client.req_options == [connect_options: [timeout: 30_000]]
     end
 
-    test "works with module-only middleware specification" do
+    test "stores finch option in req_options" do
       client =
         Client.new(
           api_key: "sk_test_12345",
-          additional_middlewares: [Tesla.Middleware.Retry]
+          req_options: [finch: MyApp.Finch]
         )
 
-      assert client.additional_middlewares == [Tesla.Middleware.Retry]
+      assert client.req_options == [finch: MyApp.Finch]
     end
 
-    test "works without additional middlewares" do
+    test "works without req_options" do
       client = Client.new(api_key: "sk_test_12345")
 
-      assert client.additional_middlewares == []
+      assert client.req_options == []
     end
   end
 end

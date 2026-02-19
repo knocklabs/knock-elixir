@@ -3,7 +3,7 @@ defmodule Knock.Response do
   Represents a response back from Knock
   """
 
-  @enforce_keys [:body, :headers, :status, :url]
+  @enforce_keys [:body, :headers, :status]
 
   defstruct [
     :url,
@@ -13,9 +13,9 @@ defmodule Knock.Response do
   ]
 
   @type t :: %__MODULE__{
-          url: String.t(),
+          url: String.t() | nil,
           body: map(),
-          headers: [],
+          headers: %{optional(String.t()) => [String.t()]},
           status: pos_integer()
         }
 end

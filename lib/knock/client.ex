@@ -11,37 +11,33 @@ defmodule Knock.Client do
   # With optional branch
   client = Knock.Client.new(api_key: "sk_test_12345", branch: "my-feature-branch")
 
-  # With custom Tesla middleware
+  # With custom Req options
   client = Knock.Client.new(
     api_key: "sk_test_12345",
-    additional_middlewares: [
-      {Tesla.Middleware.Logger, level: :debug, filter_headers: ["Authorization"]},
-      Tesla.Middleware.Retry
-    ]
+    req_options: [connect_options: [timeout: 30_000]]
   )
   ```
 
-  ### Custom middleware
+  ### Custom Req options
 
-  You can add custom Tesla middleware to the HTTP client by passing the `:additional_middlewares`
-  option when creating a client. This is useful for adding logging, retry logic, or other
-  custom behavior to HTTP requests without modifying the library itself.
+  You can pass additional Req options via `:req_options` when creating a client. These options
+  are merged into every HTTP request made by the client. This is useful for configuring timeouts,
+  retries, or using a custom Finch pool.
 
-  Middleware can be specified as either:
-  - A module atom: `Tesla.Middleware.Retry`
-  - A tuple with module and options: `{Tesla.Middleware.Logger, level: :debug, filter_headers: ["Authorization"]}`
-
-  The additional middlewares are appended to the end of the middleware chain, after the
-  built-in middlewares (BaseUrl, JSON, and Headers).
+  ```elixir
+  # Using a custom Finch pool (add {Finch, name: MyApp.Finch} to your supervision tree)
+  client = Knock.Client.new(
+    api_key: "sk_test_12345",
+    req_options: [finch: MyApp.Finch]
+  )
+  ```
   """
 
   @enforce_keys [:api_key]
   defstruct host: "https://api.knock.app",
             api_key: nil,
             branch: nil,
-            adapter: Tesla.Adapter.Hackney,
-            json_client: Jason,
-            additional_middlewares: []
+            req_options: []
 
   @typedoc """
   Describes a Knock client
@@ -50,9 +46,7 @@ defmodule Knock.Client do
           host: String.t(),
           api_key: String.t(),
           branch: String.t() | nil,
-          adapter: atom(),
-          json_client: atom(),
-          additional_middlewares: [module() | {module(), any()}]
+          req_options: keyword()
         }
 
   @doc """
@@ -67,21 +61,9 @@ defmodule Knock.Client do
 
     opts =
       opts
-      |> Keyword.take([:host, :api_key, :branch, :adapter, :json_client, :additional_middlewares])
+      |> Keyword.take([:host, :api_key, :branch, :req_options])
       |> Map.new()
-      |> maybe_set_adapter_default()
 
     struct!(__MODULE__, opts)
-  end
-
-  defp maybe_set_adapter_default(%{adapter: adapter} = opts) when not is_nil(adapter),
-    do: opts
-
-  defp maybe_set_adapter_default(opts) do
-    # Use the default adapter if one is not provided (if set using Tesla)
-    case Application.get_env(:tesla, :adapter) do
-      default when not is_nil(default) -> Map.put(opts, :adapter, default)
-      _ -> opts
-    end
   end
 end

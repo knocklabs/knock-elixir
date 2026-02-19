@@ -2,7 +2,7 @@ defmodule Knock.MixProject do
   use Mix.Project
 
   @source_url "https://github.com/knocklabs/knock-elixir"
-  @version "0.4.20"
+  @version "0.5.0"
 
   def project do
     [
@@ -29,8 +29,7 @@ defmodule Knock.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:tesla, "~> 1.4"},
-      {:hackney, "~> 1.18"},
+      {:req, "~> 0.5"},
       {:jason, "~> 1.1"},
       {:ex_doc, "~> 0.14", only: :dev, runtime: false}
     ]

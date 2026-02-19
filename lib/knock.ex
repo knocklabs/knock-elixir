@@ -40,16 +40,14 @@ defmodule Knock do
 
   ### Customizing options
 
-  Out of the box the client will specify Tesla and Jason as the HTTP adapter and JSON client,
-  respectively. However, you can customize this at will:
+  You can pass additional Req options via `:req_options` to configure timeouts, retries,
+  or a custom Finch pool:
 
   ```elixir
-  config :my_app, Knock,
-    adapter: Tesla.Adapter.Finch,
-    json_client: JSX
+  config :my_app, MyApp.KnockClient,
+    api_key: "sk_12345",
+    req_options: [connect_options: [timeout: 30_000]]
   ```
-
-  You can read more about the available adapters in the [Tesla documentation](https://hexdocs.pm/tesla/readme.html#adapters)
 
   To use a branch, set the `branch` option in your configuration or client instance.
 

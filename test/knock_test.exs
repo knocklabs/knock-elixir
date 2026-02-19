@@ -11,10 +11,9 @@ defmodule KnockTest do
       knock = TestClient.client(api_key: "sk_test_12345")
 
       assert knock.api_key == "sk_test_12345"
-      assert knock.adapter == Tesla.Adapter.Hackney
-      assert knock.json_client == Jason
       assert knock.host == "https://api.knock.app"
       assert knock.branch == nil
+      assert knock.req_options == []
     end
 
     test "it allows configuring a branch" do
@@ -68,41 +67,20 @@ defmodule KnockTest do
       Application.delete_env(:knock, KnockTest.TestClient)
     end
 
-    test "if set, will use the Tesla default adapter if one is not provided" do
-      Application.put_env(:tesla, :adapter, Tesla.Adapter.Hackney)
-
-      knock = TestClient.client(api_key: "sk_test_12345")
-      assert knock.adapter == Tesla.Adapter.Hackney
-
-      Application.delete_env(:tesla, :adapter)
-    end
-
-    test "it can set the adapter to a custom one" do
-      knock = TestClient.client(adapter: Tesla.Adapter.Mint, api_key: "sk_test_12345")
-
-      assert knock.adapter == Tesla.Adapter.Mint
-    end
-
-    test "it can accept additional middlewares as a list" do
+    test "it can accept req_options" do
       knock =
         TestClient.client(
           api_key: "sk_test_12345",
-          additional_middlewares: [
-            {Tesla.Middleware.Logger, level: :debug},
-            Tesla.Middleware.Retry
-          ]
+          req_options: [connect_options: [timeout: 30_000]]
         )
 
-      assert knock.additional_middlewares == [
-               {Tesla.Middleware.Logger, level: :debug},
-               Tesla.Middleware.Retry
-             ]
+      assert knock.req_options == [connect_options: [timeout: 30_000]]
     end
 
-    test "it defaults to empty list for additional middlewares" do
+    test "it defaults to empty list for req_options" do
       knock = TestClient.client(api_key: "sk_test_12345")
 
-      assert knock.additional_middlewares == []
+      assert knock.req_options == []
     end
   end
 end

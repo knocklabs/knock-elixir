@@ -15,7 +15,7 @@ defmodule Knock.Api do
   @typedoc """
   Defines available options to pass to an API function
   """
-  @type options :: [Tesla.option() | {:idempotency_key, String.Chars.t()}] | []
+  @type options :: [{:idempotency_key, String.Chars.t()} | {atom(), any()}]
 
   @doc """
   Executes a get request against the Knock api.
@@ -23,8 +23,8 @@ defmodule Knock.Api do
   @spec get(Client.t(), String.t(), options()) :: response()
   def get(client, path, opts \\ []) do
     client
-    |> http_client()
-    |> Tesla.get(path, opts)
+    |> build_req()
+    |> Req.get(url: path, params: Keyword.get(opts, :query))
     |> handle_response()
   end
 
@@ -33,11 +33,11 @@ defmodule Knock.Api do
   """
   @spec put(Client.t(), String.t(), map(), options()) :: response()
   def put(client, path, body, opts \\ []) do
-    {client_opts, tesla_opts} = Keyword.split(opts, [:idempotency_key])
+    {client_opts, _req_opts} = Keyword.split(opts, [:idempotency_key])
 
     client
-    |> http_client(client_opts)
-    |> Tesla.put(path, body, tesla_opts)
+    |> build_req(client_opts)
+    |> Req.put(url: path, json: body)
     |> handle_response()
   end
 
@@ -46,11 +46,11 @@ defmodule Knock.Api do
   """
   @spec post(Client.t(), String.t(), map(), options()) :: response()
   def post(client, path, body, opts \\ []) do
-    {client_opts, tesla_opts} = Keyword.split(opts, [:idempotency_key])
+    {client_opts, _req_opts} = Keyword.split(opts, [:idempotency_key])
 
     client
-    |> http_client(client_opts)
-    |> Tesla.post(path, body, tesla_opts)
+    |> build_req(client_opts)
+    |> Req.post(url: path, json: body)
     |> handle_response()
   end
 
@@ -59,60 +59,54 @@ defmodule Knock.Api do
   """
   @spec delete(Client.t(), String.t(), options()) :: response()
   def delete(client, path, opts \\ []) do
-    {client_opts, tesla_opts} = Keyword.split(opts, [:idempotency_key])
+    {client_opts, _req_opts} = Keyword.split(opts, [:idempotency_key])
 
     client
-    |> http_client(client_opts)
-    |> Tesla.delete(path, tesla_opts)
+    |> build_req(client_opts)
+    |> Req.delete(url: path)
     |> handle_response()
   end
 
-  defp handle_response({:ok, %Tesla.Env{status: status} = env})
+  defp handle_response({:ok, %Req.Response{status: status} = resp})
        when status >= 200 and status < 300 do
-    {:ok, %Knock.Response{status: status, headers: env.headers, body: env.body, url: env.url}}
+    {:ok, %Knock.Response{status: status, headers: resp.headers, body: resp.body}}
   end
 
-  defp handle_response({:ok, %Tesla.Env{status: status} = env}) do
-    {:error, %Knock.Response{status: status, headers: env.headers, body: env.body, url: env.url}}
+  defp handle_response({:ok, %Req.Response{status: status} = resp}) do
+    {:error, %Knock.Response{status: status, headers: resp.headers, body: resp.body}}
   end
 
-  defp handle_response(result), do: result
+  defp handle_response({:error, _} = error), do: error
 
   @doc """
   Returns the current version for the library
   """
   def library_version, do: @lib_version
 
-  defp http_client(config, opts \\ []) do
-    middleware =
-      [
-        {Tesla.Middleware.BaseUrl, config.host <> "/v1"},
-        {Tesla.Middleware.JSON, engine: config.json_client},
-        {Tesla.Middleware.Headers,
-         [
-           {"Authorization", "Bearer " <> config.api_key},
-           {"User-Agent", "knocklabs/knock-elixir@#{library_version()}"}
-         ] ++
-           maybe_idempotency_key_header(Map.new(opts)) ++
-           maybe_branch_header(config)}
-      ] ++ maybe_additional_middlewares(config)
+  defp build_req(config, opts \\ []) do
+    headers = %{
+      "authorization" => "Bearer #{config.api_key}",
+      "user-agent" => "knocklabs/knock-elixir@#{library_version()}"
+    }
 
-    Tesla.client(middleware, config.adapter)
+    headers = Map.merge(headers, idempotency_key_header(Map.new(opts)))
+    headers = Map.merge(headers, branch_header(config))
+
+    base_opts = [
+      base_url: config.host <> "/v1",
+      headers: headers
+    ]
+
+    Req.new(base_opts ++ config.req_options)
   end
 
-  defp maybe_idempotency_key_header(%{idempotency_key: key}) when not is_nil(key),
-    do: [{"Idempotency-Key", to_string(key)}]
+  defp idempotency_key_header(%{idempotency_key: key}) when not is_nil(key),
+    do: %{"idempotency-key" => to_string(key)}
 
-  defp maybe_idempotency_key_header(_), do: []
+  defp idempotency_key_header(_), do: %{}
 
-  defp maybe_branch_header(%{branch: branch}) when not is_nil(branch),
-    do: [{"X-Knock-Branch", to_string(branch)}]
+  defp branch_header(%{branch: branch}) when not is_nil(branch),
+    do: %{"x-knock-branch" => to_string(branch)}
 
-  defp maybe_branch_header(_), do: []
-
-  defp maybe_additional_middlewares(%{additional_middlewares: middlewares})
-       when is_list(middlewares),
-       do: middlewares
-
-  defp maybe_additional_middlewares(_), do: []
+  defp branch_header(_), do: %{}
 end
