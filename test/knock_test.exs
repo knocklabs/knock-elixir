@@ -11,7 +11,7 @@ defmodule KnockTest do
       knock = TestClient.client(api_key: "sk_test_12345")
 
       assert knock.api_key == "sk_test_12345"
-      assert knock.adapter == Tesla.Adapter.Hackney
+      assert knock.adapter == {Tesla.Adapter.Finch, name: Knock.Finch}
       assert knock.json_client == Jason
       assert knock.host == "https://api.knock.app"
       assert knock.branch == nil
@@ -69,10 +69,10 @@ defmodule KnockTest do
     end
 
     test "if set, will use the Tesla default adapter if one is not provided" do
-      Application.put_env(:tesla, :adapter, Tesla.Adapter.Hackney)
+      Application.put_env(:tesla, :adapter, Tesla.Adapter.Mint)
 
       knock = TestClient.client(api_key: "sk_test_12345")
-      assert knock.adapter == Tesla.Adapter.Hackney
+      assert knock.adapter == Tesla.Adapter.Mint
 
       Application.delete_env(:tesla, :adapter)
     end

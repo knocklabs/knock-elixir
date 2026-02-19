@@ -40,12 +40,28 @@ defmodule Knock do
 
   ### Customizing options
 
-  Out of the box the client will specify Tesla and Jason as the HTTP adapter and JSON client,
-  respectively. However, you can customize this at will:
+  Out of the box the client uses Finch (via Tesla) as the HTTP adapter and Jason as the JSON
+  client. A default Finch pool (`Knock.Finch`) is started automatically by the library.
+
+  To customize the Finch pool (e.g. pool sizes, timeouts):
+
+  ```elixir
+  config :knock, finch_options: [
+    pools: %{default: [size: 25]}
+  ]
+  ```
+
+  To disable the built-in Finch pool (e.g. if you manage your own):
+
+  ```elixir
+  config :knock, start_finch: false
+  ```
+
+  To use a different HTTP adapter entirely:
 
   ```elixir
   config :my_app, Knock,
-    adapter: Tesla.Adapter.Finch,
+    adapter: Tesla.Adapter.Mint,
     json_client: JSX
   ```
 
