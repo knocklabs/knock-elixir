@@ -39,7 +39,7 @@ defmodule Knock.Client do
   defstruct host: "https://api.knock.app",
             api_key: nil,
             branch: nil,
-            adapter: Tesla.Adapter.Hackney,
+            adapter: {Tesla.Adapter.Finch, name: Knock.Finch},
             json_client: Jason,
             additional_middlewares: []
 
@@ -50,7 +50,7 @@ defmodule Knock.Client do
           host: String.t(),
           api_key: String.t(),
           branch: String.t() | nil,
-          adapter: atom(),
+          adapter: atom() | {atom(), keyword()},
           json_client: atom(),
           additional_middlewares: [module() | {module(), any()}]
         }
