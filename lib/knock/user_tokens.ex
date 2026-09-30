@@ -30,7 +30,7 @@ defmodule Knock.UserTokens do
   @compile {:no_warn_undefined, [JOSE.JWK, JOSE.JWS, JOSE.JWT]}
 
   @signing_key_env_var "KNOCK_SIGNING_KEY"
-  @default_hostname "https://api.knock.app"
+  @api_base_url "https://api.knock.app/v1"
   @default_expires_in_seconds 60 * 60
   @base64_pem_prefix "LS0tLS1CRUdJTi"
 
@@ -123,34 +123,36 @@ defmodule Knock.UserTokens do
     end
   end
 
-  defp entity_uri(%{type: :user, id: id}), do: "#{@default_hostname}/v1/users/#{id}"
-  defp entity_uri(%{type: :tenant, id: id}), do: "#{@default_hostname}/v1/objects/$tenants/#{id}"
+  defp entity_uri(%{type: :user, id: id}), do: "#{@api_base_url}/users/#{id}"
+  defp entity_uri(%{type: :tenant, id: id}), do: "#{@api_base_url}/objects/$tenants/#{id}"
 
   defp entity_uri(%{type: :object, id: id, collection: collection}),
-    do: "#{@default_hostname}/v1/objects/#{collection}/#{id}"
+    do: "#{@api_base_url}/objects/#{collection}/#{id}"
 
   defp signing_key(options) do
     case Keyword.get(options, :signing_key) || System.get_env(@signing_key_env_var) do
       nil -> {:error, :missing_signing_key}
-      "" -> {:error, :missing_signing_key}
-      key -> prepare_signing_key(key)
+      key -> key |> String.trim() |> prepare_signing_key()
     end
   end
 
   defp prepare_signing_key("-----BEGIN" <> _ = pem), do: {:ok, pem}
 
   defp prepare_signing_key(@base64_pem_prefix <> _ = encoded) do
-    case Base.decode64(encoded) do
+    case Base.decode64(encoded, ignore: :whitespace, padding: false) do
       {:ok, pem} -> {:ok, pem}
       :error -> {:error, :invalid_signing_key}
     end
   end
 
+  defp prepare_signing_key(""), do: {:error, :missing_signing_key}
   defp prepare_signing_key(_key), do: {:error, :invalid_signing_key}
 
   defp parse_signing_key(pem) do
-    case JOSE.JWK.from_pem(pem) do
-      jwk when is_struct(jwk) -> {:ok, jwk}
+    with jwk when is_struct(jwk) <- JOSE.JWK.from_pem(pem),
+         {_, %{"kty" => "RSA", "d" => _}} <- JOSE.JWK.to_map(jwk) do
+      {:ok, jwk}
+    else
       _ -> {:error, :invalid_signing_key}
     end
   rescue

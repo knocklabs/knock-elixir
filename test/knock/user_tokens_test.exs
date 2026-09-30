@@ -35,6 +35,26 @@ defmodule Knock.UserTokensTest do
     assert claims["exp"] - claims["iat"] == 60
   end
 
+  test "accepts a line-wrapped base64-encoded PEM with a trailing newline", %{jwk: jwk, pem: pem} do
+    wrapped =
+      pem
+      |> Base.encode64()
+      |> String.graphemes()
+      |> Enum.chunk_every(76)
+      |> Enum.map_join("\n", &Enum.join/1)
+
+    assert {:ok, token} = UserTokens.sign("user_1", signing_key: wrapped <> "\n")
+    verify!(jwk, token)
+  end
+
+  test "rejects keys that aren't RSA private keys", %{jwk: jwk} do
+    {_, public_pem} = jwk |> JOSE.JWK.to_public() |> JOSE.JWK.to_pem()
+    assert UserTokens.sign("user_1", signing_key: public_pem) == {:error, :invalid_signing_key}
+
+    {_, ec_pem} = {:ec, "P-256"} |> JOSE.JWK.generate_key() |> JOSE.JWK.to_pem()
+    assert UserTokens.sign("user_1", signing_key: ec_pem) == {:error, :invalid_signing_key}
+  end
+
   test "adds a jti when requested", %{jwk: jwk, pem: pem} do
     {:ok, token} = UserTokens.sign("user_1", signing_key: pem, generate_jti: true)
 
