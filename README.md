@@ -13,7 +13,7 @@ Add the package to your `mix.exs` file as follows:
 ```elixir
 def deps do
   [
-    {:knock, "~> 0.4"}
+    {:knock, "~> 0.5"}
   ]
 end
 ```
@@ -67,6 +67,21 @@ Alternatively, you can set it as an environment variable:
 KNOCK_BRANCH="my-feature-branch"
 ```
 
+### Retries and timeouts
+
+The client doesn't retry failed requests or apply a timeout by default. You can add both with
+Tesla middleware:
+
+```elixir
+knock_client =
+  MyApp.Knock.client(
+    additional_middlewares: [
+      {Tesla.Middleware.Retry, max_retries: 2, delay: 500},
+      {Tesla.Middleware.Timeout, timeout: 30_000}
+    ]
+  )
+```
+
 ## Usage
 
 ### Identifying users
@@ -112,19 +127,20 @@ MyApp.Knock.client()
 ```elixir
 client = MyApp.Knock.client()
 
-# Set preference set for user
+# Set preference set for user (replaces the existing preference set)
 Knock.Users.set_preferences(client, "jhammond", %{channel_types: %{email: true}})
 
-# Set granular channel type preferences
-Knock.Users.set_channel_type_preferences(client, "jhammond", :email, true)
-
-# Set granular workflow preferences
-Knock.Users.set_workflow_preferences(client, "jhammond", "dinosaurs-loose", %{
-  channel_types: %{email: true}
+# Update part of the preference set, merging with existing preferences
+Knock.Users.set_preferences(client, "jhammond", %{
+  "__persistence_strategy__" => "merge",
+  "workflows" => %{"dinosaurs-loose" => %{"channel_types" => %{"email" => true}}}
 })
 
 # Retrieve preferences
 Knock.Users.get_preferences(client, "jhammond")
+
+# Retrieve preferences resolved for a tenant
+Knock.Users.get_preferences(client, "jhammond", tenant: "jurassic-park")
 ```
 
 ### Getting and setting channel data
@@ -151,28 +167,52 @@ MyApp.Knock.client()
 })
 ```
 
-### Signing JWTs
-
-You can use the excellent `joken` package to [sign JWTs easily](https://hexdocs.pm/joken/asymmetric_cryptography_signers.html#using-asymmetric-algorithms).
-You will need to generate an environment specific signing key, which you can find in the Knock dashboard.
-
-If you're using a signing token you will need to pass this to your client to perform authentication.
-You can read more about [clientside authentication here](https://docs.knock.app/client-integration/authenticating-users).
+### Scheduling workflows
 
 ```elixir
-priv = System.get_env("KNOCK_SIGNING_KEY")
-now = DateTime.utc_now()
+client = MyApp.Knock.client()
 
-claims = %{
-  # The user id to sign this key for
-  "sub" => user_id,
-  # When the token was issued
-  "iat" => DateTime.to_unix(now),
-  # When the token expires (1 hour)
-  "exp" => DateTime.add(now, 3600, :second) |> DateTime.to_unix()
-}
+Knock.Schedules.create(client, %{
+  workflow: "daily-digest",
+  recipients: ["jhammond"],
+  repeats: [%{frequency: "daily", hours: 9, minutes: 0}]
+})
 
-
-signer = Joken.Signer.create("RS256", %{"pem" => priv})
-{:ok, token, _} = Joken.generate_and_sign(%{}, claims, signer)
+Knock.Schedules.list(client, "daily-digest", recipients: ["jhammond"])
 ```
+
+### Signing user tokens
+
+When enhanced security mode is enabled, client-side SDKs need a user token signed with your
+environment's signing key (found in the Knock dashboard). Add the optional `jose` dependency:
+
+```elixir
+def deps do
+  [
+    {:knock, "~> 0.5"},
+    {:jose, "~> 1.11"}
+  ]
+end
+```
+
+Then sign tokens with `Knock.UserTokens`. The signing key is read from `KNOCK_SIGNING_KEY` unless
+passed explicitly:
+
+```elixir
+{:ok, token} = Knock.UserTokens.sign("jhammond")
+
+# With a custom expiry and grants, e.g. for Slack channel pickers
+{:ok, token} =
+  Knock.UserTokens.sign("jhammond",
+    signing_key: System.get_env("KNOCK_SIGNING_KEY"),
+    expires_in_seconds: 60 * 60 * 24,
+    grants: [
+      Knock.UserTokens.build_grant(%{type: :object, collection: "projects", id: "p1"}, [
+        Knock.UserTokens.slack_channels_read(),
+        Knock.UserTokens.channel_data_read()
+      ])
+    ]
+  )
+```
+
+You can read more about [clientside authentication here](https://docs.knock.app/client-integration/authenticating-users).

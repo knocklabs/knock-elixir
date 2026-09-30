@@ -60,7 +60,25 @@ defmodule Knock.MixProject do
       main: "readme",
       source_url: @source_url,
       source_ref: "v#{@version}",
-      extras: ["README.md", "LICENSE"]
+      extras: ["README.md", "LICENSE"],
+      groups_for_modules: [
+        Client: [Knock, Knock.Client, Knock.Api, Knock.Response],
+        Resources: [
+          Knock.Audiences,
+          Knock.BulkOperations,
+          Knock.Channels,
+          Knock.Messages,
+          Knock.Objects,
+          Knock.Schedules,
+          Knock.Tenants,
+          Knock.Users,
+          Knock.WorkflowRecipientRuns,
+          Knock.Workflows
+        ],
+        Providers: [Knock.Providers.Slack, Knock.Providers.MsTeams],
+        Integrations: [Knock.Integrations.Census, Knock.Integrations.Hightouch],
+        Authentication: [Knock.UserTokens]
+      ]
     ]
   end
 end
