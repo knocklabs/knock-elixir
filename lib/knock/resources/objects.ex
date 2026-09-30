@@ -1,16 +1,21 @@
 defmodule Knock.Objects do
   @moduledoc """
   Knock resources for accessing Objects
+
+  Preference functions accept a `:preference_set` option with the id of the preference set to
+  read or write (defaults to `"default"`).
   """
-  import Knock.ResourceHelpers, only: [maybe_json_encode_param: 3]
+  import Knock.ResourceHelpers, only: [maybe_json_encode_param: 3, build_setting_param: 1]
 
   alias Knock.Api
   alias Knock.Client
 
+  @default_preference_set_id "default"
+
   @typedoc """
   An object reference is how we refer to a particular object in a collection
   """
-  @type ref :: %{id: :string, collection: :string}
+  @type ref :: %{id: String.t(), collection: String.t()}
 
   @doc """
   Returns paginated list of objects for a collection
@@ -179,8 +184,8 @@ defmodule Knock.Objects do
   * `:page_size` - specify size of the page to be returned by the api. (max limit: 50)
   * `:after` - after cursor for pagination
   * `:before` - before cursor for pagination
-  * `:tenant` - tenant_id to filter messages with
-  * `:workflow` - workflow key to filter messages with
+  * `:tenant` - tenant_id to filter schedules with
+  * `:workflow` - workflow key to filter schedules with
   """
   @spec get_schedules(Client.t(), String.t(), String.t(), Keyword.t()) :: Api.response()
   def get_schedules(client, collection, id, options \\ []) do
@@ -248,18 +253,14 @@ defmodule Knock.Objects do
           map()
         ) :: Api.response()
   def delete_subscriptions(client, collection, id, params) do
-    recipients = Map.get(params, :recipients) || Map.get(params, "recipients")
-
     Api.delete(client, "/objects/#{collection}/#{id}/subscriptions",
-      body: %{recipients: recipients}
+      body: Map.take(params, [:recipients, "recipients"])
     )
   end
 
   ##
   # Preferences
   ##
-
-  @default_preference_set_id "default"
 
   @doc """
   Returns all of the object's preference sets
@@ -274,9 +275,7 @@ defmodule Knock.Objects do
   """
   @spec get_preferences(Client.t(), String.t(), String.t(), Keyword.t()) :: Api.response()
   def get_preferences(client, collection, id, options \\ []) do
-    preference_set_id = Keyword.get(options, :preference_set, @default_preference_set_id)
-
-    Api.get(client, "/objects/#{collection}/#{id}/preferences/#{preference_set_id}")
+    Api.get(client, preferences_path(collection, id, options))
   end
 
   @doc """
@@ -284,9 +283,7 @@ defmodule Knock.Objects do
   """
   @spec set_preferences(Client.t(), String.t(), String.t(), map(), Keyword.t()) :: Api.response()
   def set_preferences(client, collection, id, preferences, options \\ []) do
-    preference_set_id = Keyword.get(options, :preference_set, @default_preference_set_id)
-
-    Api.put(client, "/objects/#{collection}/#{id}/preferences/#{preference_set_id}", preferences)
+    Api.put(client, preferences_path(collection, id, options), preferences)
   end
 
   @doc """
@@ -298,9 +295,7 @@ defmodule Knock.Objects do
   """
   @spec unset_preferences(Client.t(), String.t(), String.t(), Keyword.t()) :: Api.response()
   def unset_preferences(client, collection, id, options \\ []) do
-    preference_set_id = Keyword.get(options, :preference_set, @default_preference_set_id)
-
-    Api.delete(client, "/objects/#{collection}/#{id}/preferences/#{preference_set_id}")
+    Api.delete(client, preferences_path(collection, id, options))
   end
 
   @doc """
@@ -312,13 +307,7 @@ defmodule Knock.Objects do
   @spec set_channel_types_preferences(Client.t(), String.t(), String.t(), map(), Keyword.t()) ::
           Api.response()
   def set_channel_types_preferences(client, collection, id, channel_types, options \\ []) do
-    preference_set_id = Keyword.get(options, :preference_set, @default_preference_set_id)
-
-    Api.put(
-      client,
-      "/objects/#{collection}/#{id}/preferences/#{preference_set_id}/channel_types",
-      channel_types
-    )
+    Api.put(client, preferences_path(collection, id, options) <> "/channel_types", channel_types)
   end
 
   @doc """
@@ -337,11 +326,9 @@ defmodule Knock.Objects do
         ) ::
           Api.response()
   def set_channel_type_preferences(client, collection, id, channel_type, setting, options \\ []) do
-    preference_set_id = Keyword.get(options, :preference_set, @default_preference_set_id)
-
     Api.put(
       client,
-      "/objects/#{collection}/#{id}/preferences/#{preference_set_id}/channel_types/#{channel_type}",
+      preferences_path(collection, id, options) <> "/channel_types/#{channel_type}",
       %{subscribed: setting}
     )
   end
@@ -355,13 +342,7 @@ defmodule Knock.Objects do
   @spec set_workflows_preferences(Client.t(), String.t(), String.t(), map(), Keyword.t()) ::
           Api.response()
   def set_workflows_preferences(client, collection, id, workflows, options \\ []) do
-    preference_set_id = Keyword.get(options, :preference_set, @default_preference_set_id)
-
-    Api.put(
-      client,
-      "/objects/#{collection}/#{id}/preferences/#{preference_set_id}/workflows",
-      workflows
-    )
+    Api.put(client, preferences_path(collection, id, options) <> "/workflows", workflows)
   end
 
   @doc """
@@ -379,11 +360,9 @@ defmodule Knock.Objects do
           Keyword.t()
         ) :: Api.response()
   def set_workflow_preferences(client, collection, id, workflow_key, setting, options \\ []) do
-    preference_set_id = Keyword.get(options, :preference_set, @default_preference_set_id)
-
     Api.put(
       client,
-      "/objects/#{collection}/#{id}/preferences/#{preference_set_id}/workflows/#{workflow_key}",
+      preferences_path(collection, id, options) <> "/workflows/#{workflow_key}",
       build_setting_param(setting)
     )
   end
@@ -397,13 +376,7 @@ defmodule Knock.Objects do
   @spec set_categories_preferences(Client.t(), String.t(), String.t(), map(), Keyword.t()) ::
           Api.response()
   def set_categories_preferences(client, collection, id, categories, options \\ []) do
-    preference_set_id = Keyword.get(options, :preference_set, @default_preference_set_id)
-
-    Api.put(
-      client,
-      "/objects/#{collection}/#{id}/preferences/#{preference_set_id}/categories",
-      categories
-    )
+    Api.put(client, preferences_path(collection, id, options) <> "/categories", categories)
   end
 
   @doc """
@@ -421,15 +394,15 @@ defmodule Knock.Objects do
           Keyword.t()
         ) :: Api.response()
   def set_category_preferences(client, collection, id, category_key, setting, options \\ []) do
-    preference_set_id = Keyword.get(options, :preference_set, @default_preference_set_id)
-
     Api.put(
       client,
-      "/objects/#{collection}/#{id}/preferences/#{preference_set_id}/categories/#{category_key}",
+      preferences_path(collection, id, options) <> "/categories/#{category_key}",
       build_setting_param(setting)
     )
   end
 
-  defp build_setting_param(setting) when is_map(setting), do: setting
-  defp build_setting_param(setting), do: %{subscribed: setting}
+  defp preferences_path(collection, id, options) do
+    preference_set_id = Keyword.get(options, :preference_set, @default_preference_set_id)
+    "/objects/#{collection}/#{id}/preferences/#{preference_set_id}"
+  end
 end

@@ -1,8 +1,11 @@
 defmodule Knock.Users do
   @moduledoc """
   Knock resources for accessing users
+
+  Preference functions accept a `:preference_set` option with the id of the preference set to
+  read or write (defaults to `"default"`).
   """
-  import Knock.ResourceHelpers, only: [maybe_json_encode_param: 3]
+  import Knock.ResourceHelpers, only: [maybe_json_encode_param: 3, build_setting_param: 1]
 
   alias Knock.Api
   alias Knock.Client
@@ -16,7 +19,7 @@ defmodule Knock.Users do
 
   * `:page_size` - specify size of the page to be returned by the api. (max limit: 50)
   * `:after` - after cursor for pagination
-  * `before` - before cursor for pagination
+  * `:before` - before cursor for pagination
   """
   @spec list(Client.t(), Keyword.t()) :: Api.response()
   def list(client, options \\ []) do
@@ -174,10 +177,9 @@ defmodule Knock.Users do
   """
   @spec get_preferences(Client.t(), String.t(), Keyword.t()) :: Api.response()
   def get_preferences(client, user_id, options \\ []) do
-    {preference_set_id, query} =
-      Keyword.pop(options, :preference_set, @default_preference_set_id)
-
-    Api.get(client, "/users/#{user_id}/preferences/#{preference_set_id}", query: query)
+    Api.get(client, preferences_path(user_id, options),
+      query: Keyword.delete(options, :preference_set)
+    )
   end
 
   @doc """
@@ -185,9 +187,7 @@ defmodule Knock.Users do
   """
   @spec set_preferences(Client.t(), String.t(), map(), Keyword.t()) :: Api.response()
   def set_preferences(client, user_id, preferences, options \\ []) do
-    preference_set_id = Keyword.get(options, :preference_set, @default_preference_set_id)
-
-    Api.put(client, "/users/#{user_id}/preferences/#{preference_set_id}", preferences)
+    Api.put(client, preferences_path(user_id, options), preferences)
   end
 
   @doc """
@@ -199,9 +199,7 @@ defmodule Knock.Users do
   """
   @spec unset_preferences(Client.t(), String.t(), Keyword.t()) :: Api.response()
   def unset_preferences(client, user_id, options \\ []) do
-    preference_set_id = Keyword.get(options, :preference_set, @default_preference_set_id)
-
-    Api.delete(client, "/users/#{user_id}/preferences/#{preference_set_id}")
+    Api.delete(client, preferences_path(user_id, options))
   end
 
   @doc """
@@ -228,13 +226,7 @@ defmodule Knock.Users do
   @spec set_channel_types_preferences(Client.t(), String.t(), map(), Keyword.t()) ::
           Api.response()
   def set_channel_types_preferences(client, user_id, channel_types, options \\ []) do
-    preference_set_id = Keyword.get(options, :preference_set, @default_preference_set_id)
-
-    Api.put(
-      client,
-      "/users/#{user_id}/preferences/#{preference_set_id}/channel_types",
-      channel_types
-    )
+    Api.put(client, preferences_path(user_id, options) <> "/channel_types", channel_types)
   end
 
   @doc """
@@ -246,13 +238,9 @@ defmodule Knock.Users do
   @spec set_channel_type_preferences(Client.t(), String.t(), String.t(), boolean(), Keyword.t()) ::
           Api.response()
   def set_channel_type_preferences(client, user_id, channel_type, setting, options \\ []) do
-    preference_set_id = Keyword.get(options, :preference_set, @default_preference_set_id)
-
-    Api.put(
-      client,
-      "/users/#{user_id}/preferences/#{preference_set_id}/channel_types/#{channel_type}",
-      %{subscribed: setting}
-    )
+    Api.put(client, preferences_path(user_id, options) <> "/channel_types/#{channel_type}", %{
+      subscribed: setting
+    })
   end
 
   @doc """
@@ -263,13 +251,7 @@ defmodule Knock.Users do
   """
   @spec set_workflows_preferences(Client.t(), String.t(), map(), Keyword.t()) :: Api.response()
   def set_workflows_preferences(client, user_id, workflows, options \\ []) do
-    preference_set_id = Keyword.get(options, :preference_set, @default_preference_set_id)
-
-    Api.put(
-      client,
-      "/users/#{user_id}/preferences/#{preference_set_id}/workflows",
-      workflows
-    )
+    Api.put(client, preferences_path(user_id, options) <> "/workflows", workflows)
   end
 
   @doc """
@@ -286,11 +268,9 @@ defmodule Knock.Users do
           Keyword.t()
         ) :: Api.response()
   def set_workflow_preferences(client, user_id, workflow_key, setting, options \\ []) do
-    preference_set_id = Keyword.get(options, :preference_set, @default_preference_set_id)
-
     Api.put(
       client,
-      "/users/#{user_id}/preferences/#{preference_set_id}/workflows/#{workflow_key}",
+      preferences_path(user_id, options) <> "/workflows/#{workflow_key}",
       build_setting_param(setting)
     )
   end
@@ -303,13 +283,7 @@ defmodule Knock.Users do
   """
   @spec set_categories_preferences(Client.t(), String.t(), map(), Keyword.t()) :: Api.response()
   def set_categories_preferences(client, user_id, categories, options \\ []) do
-    preference_set_id = Keyword.get(options, :preference_set, @default_preference_set_id)
-
-    Api.put(
-      client,
-      "/users/#{user_id}/preferences/#{preference_set_id}/categories",
-      categories
-    )
+    Api.put(client, preferences_path(user_id, options) <> "/categories", categories)
   end
 
   @doc """
@@ -326,11 +300,9 @@ defmodule Knock.Users do
           Keyword.t()
         ) :: Api.response()
   def set_category_preferences(client, user_id, category_key, setting, options \\ []) do
-    preference_set_id = Keyword.get(options, :preference_set, @default_preference_set_id)
-
     Api.put(
       client,
-      "/users/#{user_id}/preferences/#{preference_set_id}/categories/#{category_key}",
+      preferences_path(user_id, options) <> "/categories/#{category_key}",
       build_setting_param(setting)
     )
   end
@@ -378,8 +350,8 @@ defmodule Knock.Users do
   * `:page_size` - specify size of the page to be returned by the api. (max limit: 50)
   * `:after` - after cursor for pagination
   * `:before` - before cursor for pagination
-  * `:tenant` - tenant_id to filter messages with
-  * `:workflow` - workflow key to filter messages with
+  * `:tenant` - tenant_id to filter schedules with
+  * `:workflow` - workflow key to filter schedules with
   """
   @spec get_schedules(Client.t(), String.t(), Keyword.t()) :: Api.response()
   def get_schedules(client, id, options \\ []) do
@@ -521,6 +493,8 @@ defmodule Knock.Users do
     Api.post(client, "/users/#{user_id}/preference_center/signed_url", %{})
   end
 
-  defp build_setting_param(setting) when is_map(setting), do: setting
-  defp build_setting_param(setting), do: %{subscribed: setting}
+  defp preferences_path(user_id, options) do
+    preference_set_id = Keyword.get(options, :preference_set, @default_preference_set_id)
+    "/users/#{user_id}/preferences/#{preference_set_id}"
+  end
 end

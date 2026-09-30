@@ -164,6 +164,15 @@ defmodule Knock.ObjectsTest do
       assert req.body == %{"recipients" => ["u1"]}
     end
 
+    test "delete_subscriptions/4 only sends recipients", %{client: client} do
+      {_, req} =
+        capture_request(fn ->
+          Objects.delete_subscriptions(client, "projects", "p1", %{recipients: ["u1"], other: 1})
+        end)
+
+      assert req.body == %{"recipients" => ["u1"]}
+    end
+
     test "delete_subscriptions/4 sends a JSON body", %{client: client} do
       {_, req} =
         capture_request(fn ->
