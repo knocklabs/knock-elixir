@@ -63,4 +63,31 @@ defmodule Knock.MessagesTest do
     {_, req} = capture_request(fn -> Messages.get_events(client, "m1", after: "c") end)
     assert {req.method, req.path, req.query} == {:get, "/messages/m1/events", "after=c"}
   end
+
+  test "set_status/4 sends interaction metadata", %{client: client} do
+    {_, req} =
+      capture_request(fn ->
+        Messages.set_status(client, "m1", "interacted", %{metadata: %{action: "clicked"}})
+      end)
+
+    assert {req.method, req.path, req.body} ==
+             {:put, "/messages/m1/interacted", %{"metadata" => %{"action" => "clicked"}}}
+  end
+
+  test "batch_set_status/4 sends interaction metadata", %{client: client} do
+    {_, req} =
+      capture_request(fn ->
+        Messages.batch_set_status(client, ["m1"], "interacted", %{metadata: %{a: 1}})
+      end)
+
+    assert {req.method, req.path} == {:post, "/messages/batch/interacted"}
+    assert req.body == %{"message_ids" => ["m1"], "metadata" => %{"a" => 1}}
+  end
+
+  test "get_delivery_logs/3", %{client: client} do
+    {_, req} = capture_request(fn -> Messages.get_delivery_logs(client, "m1", page_size: 5) end)
+
+    assert {req.method, req.path, req.query} ==
+             {:get, "/messages/m1/delivery_logs", "page_size=5"}
+  end
 end

@@ -15,11 +15,11 @@ defmodule Knock.Objects do
   @doc """
   Returns paginated list of objects for a collection
 
-  # Available optional parameters:
-  #
-  # - page_size: specify size of the page to be returned by the api. (max limit: 50)
-  # - after:  after cursor for pagination
-  # - before: before cursor for pagination
+  ## Available optional parameters:
+
+  * `:page_size` - specify size of the page to be returned by the api. (max limit: 50)
+  * `:after` - after cursor for pagination
+  * `:before` - before cursor for pagination
   """
   @spec list(Client.t(), String.t(), Keyword.t()) :: Api.response()
   def list(client, collection, options \\ []) do
@@ -93,6 +93,22 @@ defmodule Knock.Objects do
     })
   end
 
+  @doc """
+  Creates a bulk operation to delete subscriptions for a set of recipients from a set of
+  objects within the given collection.
+
+  Each entry in the provided subscriptions list should have the properties:
+
+  - id: the id of the object to remove subscriptions from
+  - recipients: a list of recipients to unsubscribe from the object
+  """
+  @spec bulk_delete_subscriptions(Client.t(), String.t(), [map()]) :: Api.response()
+  def bulk_delete_subscriptions(client, collection, subscriptions) do
+    Api.post(client, "/objects/#{collection}/bulk/subscriptions/delete", %{
+      subscriptions: subscriptions
+    })
+  end
+
   ##
   # Channel data
   ##
@@ -131,16 +147,18 @@ defmodule Knock.Objects do
   @doc """
   Returns paginated messages for the given object
 
-  # Available optional parameters:
-  #
-  # - page_size: specify size of the page to be returned by the api.  (max limit: 50)
-  # - after:  after cursor for pagination
-  # - before: before cursor for pagination
-  # - status: list of statuses to filter messages with
-  # - tenant: tenant_id to filter messages with
-  # - channel_id: channel_id to filter messages with
-  # - source: workflow key to filter messages with
-  # - trigger_data: trigger payload to filter messages with
+  ## Available optional parameters:
+
+  * `:page_size` - specify size of the page to be returned by the api. (max limit: 50)
+  * `:after` - after cursor for pagination
+  * `:before` - before cursor for pagination
+  * `:status` - list of delivery statuses to filter messages with
+  * `:engagement_status` - list of engagement statuses to filter messages with
+  * `:tenant` - tenant_id to filter messages with
+  * `:channel_id` - channel_id to filter messages with
+  * `:source` - workflow key to filter messages with
+  * `:trigger_data` - trigger payload to filter messages with, as a map or a JSON-encoded string
+  * `:inserted_at` - map of `:gt`, `:gte`, `:lt` and/or `:lte` timestamps to filter messages with
   """
   @spec get_messages(Client.t(), String.t(), String.t(), Keyword.t()) :: Api.response()
   def get_messages(client, collection, id, options \\ []) do
@@ -156,13 +174,13 @@ defmodule Knock.Objects do
   @doc """
   Returns paginated schedules for the given object
 
-  # Available optional parameters:
-  #
-  # - page_size: specify size of the page to be returned by the api. (max limit: 50)
-  # - after:  after cursor for pagination
-  # - before: before cursor for pagination
-  # - tenant: tenant_id to filter messages with
-  # - workflow: workflow key to filter messages with
+  ## Available optional parameters:
+
+  * `:page_size` - specify size of the page to be returned by the api. (max limit: 50)
+  * `:after` - after cursor for pagination
+  * `:before` - before cursor for pagination
+  * `:tenant` - tenant_id to filter messages with
+  * `:workflow` - workflow key to filter messages with
   """
   @spec get_schedules(Client.t(), String.t(), String.t(), Keyword.t()) :: Api.response()
   def get_schedules(client, collection, id, options \\ []) do
@@ -176,12 +194,14 @@ defmodule Knock.Objects do
   @doc """
   Returns paginated subscriptions for the given object
 
-  # Available optional parameters:
-  #
-  # - page_size: specify size of the page to be returned by the api. (max limit: 50)
-  # - after:  after cursor for pagination
-  # - before: before cursor for pagination
-  # - recipients: list of recipient identifiers to filter subscribers of the object
+  ## Available optional parameters:
+
+  * `:page_size` - specify size of the page to be returned by the api. (max limit: 50)
+  * `:after` - after cursor for pagination
+  * `:before` - before cursor for pagination
+  * `:include` - list of associated resources to include, e.g. `["preferences"]`
+  * `:recipients` - list of recipients (user ids or `%{id: id, collection: collection}` object
+    references) to filter subscribers of the object
   """
   @spec list_subscriptions(Client.t(), String.t(), String.t(), Keyword.t()) :: Api.response()
   def list_subscriptions(client, collection, id, options \\ []) do
@@ -191,11 +211,11 @@ defmodule Knock.Objects do
   @doc """
   Returns paginated subscriptions for the given object as recipient
 
-  # Available optional parameters:
-  #
-  # - page_size: specify size of the page to be returned by the api. (max limit: 50)
-  # - after:  after cursor for pagination
-  # - before: before cursor for pagination
+  ## Available optional parameters:
+
+  * `:page_size` - specify size of the page to be returned by the api. (max limit: 50)
+  * `:after` - after cursor for pagination
+  * `:before` - before cursor for pagination
   """
   @spec get_subscriptions(Client.t(), String.t(), String.t(), Keyword.t()) :: Api.response()
   def get_subscriptions(client, collection, id, options \\ []) do
@@ -242,7 +262,7 @@ defmodule Knock.Objects do
   @default_preference_set_id "default"
 
   @doc """
-  Returns all of the users preference sets
+  Returns all of the object's preference sets
   """
   @spec get_all_preferences(Client.t(), String.t(), String.t()) :: Api.response()
   def get_all_preferences(client, collection, id) do
@@ -250,7 +270,7 @@ defmodule Knock.Objects do
   end
 
   @doc """
-  Returns the preference set for the user.
+  Returns the preference set for the object.
   """
   @spec get_preferences(Client.t(), String.t(), String.t(), Keyword.t()) :: Api.response()
   def get_preferences(client, collection, id, options \\ []) do
@@ -260,7 +280,7 @@ defmodule Knock.Objects do
   end
 
   @doc """
-  Sets an entire preference set for the user. Will overwrite any existing data.
+  Sets an entire preference set for the object. Will overwrite any existing data.
   """
   @spec set_preferences(Client.t(), String.t(), String.t(), map(), Keyword.t()) :: Api.response()
   def set_preferences(client, collection, id, preferences, options \\ []) do
@@ -270,7 +290,24 @@ defmodule Knock.Objects do
   end
 
   @doc """
-  Sets the channel type preferences for the user.
+  Unsets (deletes) the preference set for the object.
+
+  ## Available optional parameters:
+
+  * `:preference_set` - id of the preference set to delete (defaults to `"default"`)
+  """
+  @spec unset_preferences(Client.t(), String.t(), String.t(), Keyword.t()) :: Api.response()
+  def unset_preferences(client, collection, id, options \\ []) do
+    preference_set_id = Keyword.get(options, :preference_set, @default_preference_set_id)
+
+    Api.delete(client, "/objects/#{collection}/#{id}/preferences/#{preference_set_id}")
+  end
+
+  @doc """
+  Sets the channel type preferences for the object.
+
+  Note: the underlying endpoint is deprecated in the Knock API. Prefer `set_preferences/5` with
+  `"__persistence_strategy__" => "merge"` to update part of a preference set.
   """
   @spec set_channel_types_preferences(Client.t(), String.t(), String.t(), map(), Keyword.t()) ::
           Api.response()
@@ -285,7 +322,10 @@ defmodule Knock.Objects do
   end
 
   @doc """
-  Sets the channel type preference for the user.
+  Sets the channel type preference for the object.
+
+  Note: the underlying endpoint is deprecated in the Knock API. Prefer `set_preferences/5` with
+  `"__persistence_strategy__" => "merge"` to update part of a preference set.
   """
   @spec set_channel_type_preferences(
           Client.t(),
@@ -307,7 +347,10 @@ defmodule Knock.Objects do
   end
 
   @doc """
-  Sets the workflow preferences for the user.
+  Sets the workflow preferences for the object.
+
+  Note: the underlying endpoint is deprecated in the Knock API. Prefer `set_preferences/5` with
+  `"__persistence_strategy__" => "merge"` to update part of a preference set.
   """
   @spec set_workflows_preferences(Client.t(), String.t(), String.t(), map(), Keyword.t()) ::
           Api.response()
@@ -322,7 +365,10 @@ defmodule Knock.Objects do
   end
 
   @doc """
-  Sets the workflow preference for the user.
+  Sets the workflow preference for the object.
+
+  Note: the underlying endpoint is deprecated in the Knock API. Prefer `set_preferences/5` with
+  `"__persistence_strategy__" => "merge"` to update part of a preference set.
   """
   @spec set_workflow_preferences(
           Client.t(),
@@ -343,7 +389,10 @@ defmodule Knock.Objects do
   end
 
   @doc """
-  Sets the category preferences for the user.
+  Sets the category preferences for the object.
+
+  Note: the underlying endpoint is deprecated in the Knock API. Prefer `set_preferences/5` with
+  `"__persistence_strategy__" => "merge"` to update part of a preference set.
   """
   @spec set_categories_preferences(Client.t(), String.t(), String.t(), map(), Keyword.t()) ::
           Api.response()
@@ -358,7 +407,10 @@ defmodule Knock.Objects do
   end
 
   @doc """
-  Sets the category preference for the user.
+  Sets the category preference for the object.
+
+  Note: the underlying endpoint is deprecated in the Knock API. Prefer `set_preferences/5` with
+  `"__persistence_strategy__" => "merge"` to update part of a preference set.
   """
   @spec set_category_preferences(
           Client.t(),

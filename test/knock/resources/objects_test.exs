@@ -53,6 +53,20 @@ defmodule Knock.ObjectsTest do
     end
   end
 
+  describe "bulk subscriptions delete" do
+    test "bulk_delete_subscriptions/3", %{client: client} do
+      subscriptions = [%{id: "p1", recipients: ["u1"]}]
+
+      {_, req} =
+        capture_request(fn ->
+          Objects.bulk_delete_subscriptions(client, "projects", subscriptions)
+        end)
+
+      assert {req.method, req.path} == {:post, "/objects/projects/bulk/subscriptions/delete"}
+      assert req.body == %{"subscriptions" => [%{"id" => "p1", "recipients" => ["u1"]}]}
+    end
+  end
+
   describe "channel data" do
     test "get/set/unset channel data", %{client: client} do
       path = "/objects/projects/p1/channel_data/ch_1"
@@ -178,6 +192,18 @@ defmodule Knock.ObjectsTest do
 
       assert {req.method, req.path, req.body} ==
                {:put, "/objects/projects/p1/preferences/x", %{"workflows" => %{}}}
+    end
+
+    test "unset_preferences/4", %{client: client} do
+      {_, req} = capture_request(fn -> Objects.unset_preferences(client, "projects", "p1") end)
+      assert {req.method, req.path} == {:delete, "/objects/projects/p1/preferences/default"}
+
+      {_, req} =
+        capture_request(fn ->
+          Objects.unset_preferences(client, "projects", "p1", preference_set: "x")
+        end)
+
+      assert req.path == "/objects/projects/p1/preferences/x"
     end
 
     test "granular preference setters", %{client: client} do
