@@ -69,7 +69,7 @@ defmodule Knock.Api do
 
   defp encode_query_opt(opts) do
     case Keyword.fetch(opts, :query) do
-      {:ok, query} -> Keyword.put(opts, :query, Knock.ResourceHelpers.encode_query(query))
+      {:ok, query} -> Keyword.put(opts, :query, Knock.Api.Query.encode(query))
       :error -> opts
     end
   end
