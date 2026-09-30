@@ -169,6 +169,15 @@ defmodule Knock.UsersTest do
       assert {req.path, req.query} == {"/users/u1/preferences/default", "tenant=t1"}
     end
 
+    test "get_preferences/3 only forwards supported query params", %{client: client} do
+      {_, req} =
+        capture_request(fn ->
+          Users.get_preferences(client, "u1", preference_set: "other", idempotency_key: "x")
+        end)
+
+      assert {req.path, req.query} == {"/users/u1/preferences/other", nil}
+    end
+
     test "unset_preferences/3", %{client: client} do
       {_, req} = capture_request(fn -> Users.unset_preferences(client, "u1") end)
       assert {req.method, req.path} == {:delete, "/users/u1/preferences/default"}

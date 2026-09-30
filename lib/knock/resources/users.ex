@@ -177,9 +177,7 @@ defmodule Knock.Users do
   """
   @spec get_preferences(Client.t(), String.t(), Keyword.t()) :: Api.response()
   def get_preferences(client, user_id, options \\ []) do
-    Api.get(client, preferences_path(user_id, options),
-      query: Keyword.delete(options, :preference_set)
-    )
+    Api.get(client, preferences_path(user_id, options), query: Keyword.take(options, [:tenant]))
   end
 
   @doc """
