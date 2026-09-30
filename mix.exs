@@ -9,6 +9,7 @@ defmodule Knock.MixProject do
       app: :knock,
       version: @version,
       elixir: "~> 1.10",
+      elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       description: description(),
       package: package(),
@@ -26,6 +27,9 @@ defmodule Knock.MixProject do
       mod: {Knock.Application, []}
     ]
   end
+
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
