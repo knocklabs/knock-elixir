@@ -39,6 +39,15 @@ defmodule Knock.MiscResourcesTest do
     assert req.body == %{"trigger_data" => ~s({"a":1})}
   end
 
+  test "Channels.bulk_set_messages_status/4 passes a nil trigger_data through", %{client: client} do
+    {_, req} =
+      capture_request(fn ->
+        Knock.Channels.bulk_set_messages_status(client, "ch_1", "read", %{trigger_data: nil})
+      end)
+
+    assert req.body == %{"trigger_data" => nil}
+  end
+
   test "deprecated Knock.Preferences delegates to Users", %{client: client} do
     {_, req} = capture_request(fn -> apply(Knock.Preferences, :get, [client, "u1"]) end)
     assert {req.method, req.path} == {:get, "/users/u1/preferences/default"}

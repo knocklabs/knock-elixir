@@ -39,7 +39,7 @@ defmodule Knock.Channels do
 
   defp encode_trigger_data(filtering_options, json_client) do
     Enum.into(filtering_options, %{}, fn
-      {key, value} when key in [:trigger_data, "trigger_data"] ->
+      {key, value} when key in [:trigger_data, "trigger_data"] and not is_nil(value) ->
         {key, json_encode_value(value, :trigger_data, json_client)}
 
       pair ->
