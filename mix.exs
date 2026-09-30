@@ -77,7 +77,8 @@ defmodule Knock.MixProject do
         ],
         Providers: [Knock.Providers.Slack, Knock.Providers.MsTeams],
         Integrations: [Knock.Integrations.Census, Knock.Integrations.Hightouch],
-        Authentication: [Knock.UserTokens]
+        Authentication: [Knock.UserTokens],
+        Deprecated: [Knock.Preferences]
       ]
     ]
   end

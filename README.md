@@ -69,17 +69,30 @@ KNOCK_BRANCH="my-feature-branch"
 
 ### Retries and timeouts
 
-The client doesn't retry failed requests or apply a timeout by default. You can add both with
-Tesla middleware:
+The client doesn't retry failed requests. You can add retries with Tesla middleware. Retrying
+non-idempotent requests (such as workflow triggers) can send duplicate notifications, so either
+limit retries to reads or pass an `:idempotency_key` when triggering workflows:
 
 ```elixir
 knock_client =
   MyApp.Knock.client(
     additional_middlewares: [
-      {Tesla.Middleware.Retry, max_retries: 2, delay: 500},
-      {Tesla.Middleware.Timeout, timeout: 30_000}
+      {Tesla.Middleware.Retry,
+       max_retries: 2,
+       delay: 500,
+       should_retry: fn result, env, _context ->
+         env.method == :get and match?({:error, _}, result)
+       end}
     ]
   )
+```
+
+The default Finch adapter waits up to 15 seconds for a response. To change this, configure the
+adapter's `:receive_timeout`:
+
+```elixir
+knock_client =
+  MyApp.Knock.client(adapter: {Tesla.Adapter.Finch, name: Knock.Finch, receive_timeout: 30_000})
 ```
 
 ## Usage
