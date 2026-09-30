@@ -95,6 +95,13 @@ defmodule Knock.UsersTest do
     end
   end
 
+  describe "feed settings" do
+    test "get_feed_settings/3", %{client: client} do
+      {_, req} = capture_request(fn -> Users.get_feed_settings(client, "u1", "feed_1") end)
+      assert {req.method, req.path} == {:get, "/users/u1/feeds/feed_1/settings"}
+    end
+  end
+
   describe "bulk" do
     test "bulk_identify/2", %{client: client} do
       {_, req} = capture_request(fn -> Users.bulk_identify(client, [%{id: "u1"}]) end)
@@ -153,6 +160,21 @@ defmodule Knock.UsersTest do
 
       {_, req} =
         capture_request(fn -> Users.get_preferences(client, "u1", preference_set: "other") end)
+
+      assert req.path == "/users/u1/preferences/other"
+    end
+
+    test "get_preferences/3 sends the tenant as a query param", %{client: client} do
+      {_, req} = capture_request(fn -> Users.get_preferences(client, "u1", tenant: "t1") end)
+      assert {req.path, req.query} == {"/users/u1/preferences/default", "tenant=t1"}
+    end
+
+    test "unset_preferences/3", %{client: client} do
+      {_, req} = capture_request(fn -> Users.unset_preferences(client, "u1") end)
+      assert {req.method, req.path} == {:delete, "/users/u1/preferences/default"}
+
+      {_, req} =
+        capture_request(fn -> Users.unset_preferences(client, "u1", preference_set: "other") end)
 
       assert req.path == "/users/u1/preferences/other"
     end
