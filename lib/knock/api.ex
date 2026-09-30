@@ -24,7 +24,7 @@ defmodule Knock.Api do
   def get(client, path, opts \\ []) do
     client
     |> http_client()
-    |> Tesla.get(path, opts)
+    |> Tesla.get(path, encode_query_opt(opts))
     |> handle_response()
   end
 
@@ -37,7 +37,7 @@ defmodule Knock.Api do
 
     client
     |> http_client(client_opts)
-    |> Tesla.put(path, body, tesla_opts)
+    |> Tesla.put(path, body, encode_query_opt(tesla_opts))
     |> handle_response()
   end
 
@@ -50,7 +50,7 @@ defmodule Knock.Api do
 
     client
     |> http_client(client_opts)
-    |> Tesla.post(path, body, tesla_opts)
+    |> Tesla.post(path, body, encode_query_opt(tesla_opts))
     |> handle_response()
   end
 
@@ -63,8 +63,15 @@ defmodule Knock.Api do
 
     client
     |> http_client(client_opts)
-    |> Tesla.delete(path, tesla_opts)
+    |> Tesla.delete(path, encode_query_opt(tesla_opts))
     |> handle_response()
+  end
+
+  defp encode_query_opt(opts) do
+    case Keyword.fetch(opts, :query) do
+      {:ok, query} -> Keyword.put(opts, :query, Knock.Api.Query.encode(query))
+      :error -> opts
+    end
   end
 
   defp handle_response({:ok, %Tesla.Env{status: status} = env})

@@ -2,13 +2,14 @@ defmodule Knock.MixProject do
   use Mix.Project
 
   @source_url "https://github.com/knocklabs/knock-elixir"
-  @version "0.5.0"
+  @version "0.6.0"
 
   def project do
     [
       app: :knock,
       version: @version,
       elixir: "~> 1.10",
+      elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       description: description(),
       package: package(),
@@ -27,12 +28,16 @@ defmodule Knock.MixProject do
     ]
   end
 
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
+
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
       {:tesla, "~> 1.4"},
       {:finch, "~> 0.13"},
       {:jason, "~> 1.1"},
+      {:jose, "~> 1.11", optional: true},
       {:ex_doc, "~> 0.14", only: :dev, runtime: false}
     ]
   end
@@ -55,7 +60,26 @@ defmodule Knock.MixProject do
       main: "readme",
       source_url: @source_url,
       source_ref: "v#{@version}",
-      extras: ["README.md", "LICENSE"]
+      extras: ["README.md", "LICENSE"],
+      groups_for_modules: [
+        Client: [Knock, Knock.Client, Knock.Api, Knock.Response],
+        Resources: [
+          Knock.Audiences,
+          Knock.BulkOperations,
+          Knock.Channels,
+          Knock.Messages,
+          Knock.Objects,
+          Knock.Schedules,
+          Knock.Tenants,
+          Knock.Users,
+          Knock.WorkflowRecipientRuns,
+          Knock.Workflows
+        ],
+        Providers: [Knock.Providers.Slack, Knock.Providers.MsTeams],
+        Integrations: [Knock.Integrations.Census, Knock.Integrations.Hightouch],
+        Authentication: [Knock.UserTokens],
+        Deprecated: [Knock.Preferences]
+      ]
     ]
   end
 end

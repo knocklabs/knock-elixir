@@ -3,6 +3,7 @@ defmodule Knock.BulkOperations do
   Knock resources for accessing Bulk Operations
   """
   alias Knock.Api
+  alias Knock.Client
 
   @doc """
   Retrieves the current status of the bulk operation
