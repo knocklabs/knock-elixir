@@ -20,8 +20,11 @@ defmodule Knock.ResourceHelpers do
   @spec json_encode_value(map() | String.t(), atom(), module()) :: String.t()
   def json_encode_value(value, _param_key, _json_client) when is_binary(value), do: value
 
-  def json_encode_value(value, _param_key, json_client) when is_map(value),
-    do: json_client.encode!(value)
+  def json_encode_value(value, _param_key, json_client) when is_map(value) do
+    if Code.ensure_loaded?(json_client) and function_exported?(json_client, :encode!, 1),
+      do: json_client.encode!(value),
+      else: Jason.encode!(value)
+  end
 
   def json_encode_value(_value, param_key, _json_client) do
     raise ArgumentError, "Incorrect #{param_key} type, expected a map or a JSON-encoded string"

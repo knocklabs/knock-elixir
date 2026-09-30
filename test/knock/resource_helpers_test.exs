@@ -29,6 +29,11 @@ defmodule Knock.ResourceHelpersTest do
       end
     end
 
+    test "falls back to Jason when the JSON client has no encode!/1" do
+      assert ResourceHelpers.maybe_json_encode_param([data: %{"a" => 1}], :data, URI) ==
+               [data: ~s({"a":1})]
+    end
+
     test "uses the given JSON client" do
       assert ResourceHelpers.maybe_json_encode_param([data: %{}], :data, FakeJSON) ==
                [data: "encoded"]
