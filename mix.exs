@@ -37,6 +37,7 @@ defmodule Knock.MixProject do
       {:tesla, "~> 1.4"},
       {:finch, "~> 0.13"},
       {:jason, "~> 1.1"},
+      {:jose, "~> 1.11", optional: true},
       {:ex_doc, "~> 0.14", only: :dev, runtime: false}
     ]
   end
