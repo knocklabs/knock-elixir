@@ -13,7 +13,7 @@ Add the package to your `mix.exs` file as follows:
 ```elixir
 def deps do
   [
-    {:knock, "~> 0.5"}
+    {:knock, "~> 0.6"}
   ]
 end
 ```
@@ -202,7 +202,7 @@ environment's signing key (found in the Knock dashboard). Add the optional `jose
 ```elixir
 def deps do
   [
-    {:knock, "~> 0.5"},
+    {:knock, "~> 0.6"},
     {:jose, "~> 1.11"}
   ]
 end
