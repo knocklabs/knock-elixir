@@ -6,6 +6,9 @@ defmodule Knock.Api.Query do
   # here; every other pair is left for Tesla to encode so the query seen by middleware is
   # unchanged. Lists whose first element is a map use indexed keys, matching the Node SDK:
   # Plug decodes indexed primitives as a map, so scalar lists must stay in `key[]` form.
+  # Dates are sent as ISO-8601, since `to_string/1` on a DateTime uses a space separator.
+
+  @date_structs [DateTime, NaiveDateTime, Date]
 
   @spec encode(Enumerable.t()) :: list()
   def encode(query) do
@@ -14,6 +17,7 @@ defmodule Knock.Api.Query do
     end)
   end
 
+  defp needs_encoding?(%struct{}) when struct in @date_structs, do: true
   defp needs_encoding?(value) when is_map(value) and not is_struct(value), do: true
 
   defp needs_encoding?(value) when is_list(value) do
@@ -40,6 +44,9 @@ defmodule Knock.Api.Query do
 
   defp encode_pair(key, value) when is_list(value),
     do: Enum.flat_map(value, &encode_pair("#{key}[]", &1))
+
+  defp encode_pair(key, %struct{} = value) when struct in @date_structs,
+    do: [{key, struct.to_iso8601(value)}]
 
   defp encode_pair(key, value), do: [{key, value}]
 

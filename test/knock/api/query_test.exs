@@ -46,8 +46,16 @@ defmodule Knock.Api.QueryTest do
            ]
   end
 
-  test "leaves structs such as DateTime as scalar values" do
-    at = ~U[2024-01-01 00:00:00Z]
-    assert Query.encode(inserted_at: %{gte: at}) == [{"inserted_at[gte]", at}]
+  test "sends dates as ISO-8601" do
+    assert Query.encode(inserted_at: %{gte: ~U[2024-01-01 00:00:00Z]}) ==
+             [{"inserted_at[gte]", "2024-01-01T00:00:00Z"}]
+
+    assert Query.encode(starting_at: ~N[2024-01-01 00:00:00], day: ~D[2024-01-01]) ==
+             [{"starting_at", "2024-01-01T00:00:00"}, {"day", "2024-01-01"}]
+  end
+
+  test "leaves other structs as scalar values" do
+    uri = URI.parse("https://example.com")
+    assert Query.encode(inserted_at: %{gte: uri}) == [{"inserted_at[gte]", uri}]
   end
 end
