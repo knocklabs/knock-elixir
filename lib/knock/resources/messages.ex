@@ -2,7 +2,7 @@ defmodule Knock.Messages do
   @moduledoc """
   Knock resources for accessing messages
   """
-  import Knock.ResourceHelpers, only: [maybe_json_encode_param: 2]
+  import Knock.ResourceHelpers, only: [maybe_json_encode_param: 3]
 
   alias Knock.Api
   alias Knock.Client
@@ -24,7 +24,7 @@ defmodule Knock.Messages do
   """
   @spec list(Client.t(), Keyword.t()) :: Api.response()
   def list(client, options \\ []) do
-    options = maybe_json_encode_param(options, :trigger_data)
+    options = maybe_json_encode_param(options, :trigger_data, client.json_client)
 
     Api.get(client, "/messages", query: options)
   end
@@ -90,7 +90,7 @@ defmodule Knock.Messages do
   """
   @spec get_activities(Client.t(), String.t(), Keyword.t()) :: Api.response()
   def get_activities(client, message_id, options \\ []) do
-    options = maybe_json_encode_param(options, :trigger_data)
+    options = maybe_json_encode_param(options, :trigger_data, client.json_client)
 
     Api.get(client, "/messages/#{message_id}/activities", query: options)
   end

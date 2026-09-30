@@ -2,7 +2,7 @@ defmodule Knock.Users do
   @moduledoc """
   Knock resources for accessing users
   """
-  import Knock.ResourceHelpers, only: [maybe_json_encode_param: 2]
+  import Knock.ResourceHelpers, only: [maybe_json_encode_param: 3]
 
   alias Knock.Api
   alias Knock.Client
@@ -73,7 +73,7 @@ defmodule Knock.Users do
   """
   @spec get_feed(Client.t(), String.t(), String.t(), Keyword.t()) :: Api.response()
   def get_feed(client, user_id, channel_id, options \\ []) do
-    options = maybe_json_encode_param(options, :trigger_data)
+    options = maybe_json_encode_param(options, :trigger_data, client.json_client)
 
     Api.get(client, "/users/#{user_id}/feeds/#{channel_id}", query: options)
   end
@@ -299,7 +299,7 @@ defmodule Knock.Users do
   """
   @spec get_messages(Client.t(), String.t(), Keyword.t()) :: Api.response()
   def get_messages(client, id, options \\ []) do
-    options = maybe_json_encode_param(options, :trigger_data)
+    options = maybe_json_encode_param(options, :trigger_data, client.json_client)
 
     Api.get(client, "/users/#{id}/messages", query: options)
   end

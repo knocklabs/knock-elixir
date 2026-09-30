@@ -68,6 +68,33 @@ defmodule Knock.UsersTest do
     end
   end
 
+  describe "query encoding" do
+    test "get_feed/4 encodes nested inserted_at filters", %{client: client} do
+      {_, req} =
+        capture_request(fn ->
+          Users.get_feed(client, "u1", "feed_1", inserted_at: %{gt: "2024-01-01T00:00:00Z"})
+        end)
+
+      assert req.query == "inserted_at[gt]=2024-01-01T00:00:00Z"
+    end
+
+    test "get_messages/3 passes a pre-encoded trigger_data string through", %{client: client} do
+      {_, req} =
+        capture_request(fn -> Users.get_messages(client, "u1", trigger_data: ~s({"a":1})) end)
+
+      assert req.query == ~s(trigger_data={"a":1})
+    end
+
+    test "get_subscriptions/3 encodes object references with indexed keys", %{client: client} do
+      {_, req} =
+        capture_request(fn ->
+          Users.get_subscriptions(client, "u1", objects: [%{id: "p1", collection: "projects"}])
+        end)
+
+      assert req.query == q("objects[0][collection]=projects&objects[0][id]=p1")
+    end
+  end
+
   describe "bulk" do
     test "bulk_identify/2", %{client: client} do
       {_, req} = capture_request(fn -> Users.bulk_identify(client, [%{id: "u1"}]) end)

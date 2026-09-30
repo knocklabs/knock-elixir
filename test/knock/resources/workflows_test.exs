@@ -61,6 +61,18 @@ defmodule Knock.WorkflowsTest do
       assert {req.method, req.path, req.query} == {:get, "/schedules", q("workflow=wf&tenant=t1")}
     end
 
+    test "list_schedules/3 encodes object reference recipients", %{client: client} do
+      {_, req} =
+        capture_request(fn ->
+          Workflows.list_schedules(client, "wf",
+            recipients: [%{id: "p1", collection: "projects"}]
+          )
+        end)
+
+      assert req.query ==
+               q("workflow=wf&recipients[0][collection]=projects&recipients[0][id]=p1")
+    end
+
     test "delete_schedules/2", %{client: client} do
       {_, req} = capture_request(fn -> Workflows.delete_schedules(client, ["s1"]) end)
 

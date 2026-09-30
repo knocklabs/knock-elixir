@@ -2,7 +2,7 @@ defmodule Knock.Objects do
   @moduledoc """
   Knock resources for accessing Objects
   """
-  import Knock.ResourceHelpers, only: [maybe_json_encode_param: 2]
+  import Knock.ResourceHelpers, only: [maybe_json_encode_param: 3]
 
   alias Knock.Api
   alias Knock.Client
@@ -144,7 +144,7 @@ defmodule Knock.Objects do
   """
   @spec get_messages(Client.t(), String.t(), String.t(), Keyword.t()) :: Api.response()
   def get_messages(client, collection, id, options \\ []) do
-    options = maybe_json_encode_param(options, :trigger_data)
+    options = maybe_json_encode_param(options, :trigger_data, client.json_client)
 
     Api.get(client, "/objects/#{collection}/#{id}/messages", query: options)
   end
@@ -225,10 +225,10 @@ defmodule Knock.Objects do
           Client.t(),
           String.t(),
           String.t(),
-          %{recipients: [String.t() | map()]}
+          map()
         ) :: Api.response()
   def delete_subscriptions(client, collection, id, params) do
-    recipients = Map.get(params, :recipients)
+    recipients = Map.get(params, :recipients) || Map.get(params, "recipients")
 
     Api.delete(client, "/objects/#{collection}/#{id}/subscriptions",
       body: %{recipients: recipients}

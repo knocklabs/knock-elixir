@@ -107,6 +107,23 @@ defmodule Knock.ObjectsTest do
       assert req.query == "recipients[]=u1&recipients[]=u2"
     end
 
+    test "list_subscriptions/4 with object reference recipients", %{client: client} do
+      {result, req} =
+        capture_request(fn ->
+          Objects.list_subscriptions(client, "projects", "p1",
+            recipients: [%{id: "u1", collection: "users"}, %{id: "t1", collection: "teams"}]
+          )
+        end)
+
+      assert {:ok, _} = result
+
+      assert req.query ==
+               q(
+                 "recipients[0][collection]=users&recipients[0][id]=u1&" <>
+                   "recipients[1][collection]=teams&recipients[1][id]=t1"
+               )
+    end
+
     test "get_subscriptions/4 sets recipient mode", %{client: client} do
       {_, req} = capture_request(fn -> Objects.get_subscriptions(client, "projects", "p1") end)
 
@@ -122,6 +139,15 @@ defmodule Knock.ObjectsTest do
 
       assert {req.method, req.path, req.body} ==
                {:post, "/objects/projects/p1/subscriptions", %{"recipients" => ["u1"]}}
+    end
+
+    test "delete_subscriptions/4 accepts string-keyed params", %{client: client} do
+      {_, req} =
+        capture_request(fn ->
+          Objects.delete_subscriptions(client, "projects", "p1", %{"recipients" => ["u1"]})
+        end)
+
+      assert req.body == %{"recipients" => ["u1"]}
     end
 
     test "delete_subscriptions/4 sends a JSON body", %{client: client} do
