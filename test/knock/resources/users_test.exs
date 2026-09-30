@@ -264,4 +264,84 @@ defmodule Knock.UsersTest do
                {:get, "/users/u1/subscriptions", "page_size=5"}
     end
   end
+
+  describe "guides" do
+    @guide %{
+      channel_id: "ch_1",
+      guide_id: "g1",
+      guide_key: "tour",
+      guide_step_ref: "step_1"
+    }
+
+    test "get_guides/4 encodes data", %{client: client} do
+      {_, req} =
+        capture_request(fn ->
+          Users.get_guides(client, "u1", "ch_1", tenant: "t1", data: %{"plan" => "pro"})
+        end)
+
+      assert {req.method, req.path} == {:get, "/users/u1/guides/ch_1"}
+      assert req.query == q(~s(tenant=t1&data={"plan":"pro"}))
+    end
+
+    test "mark_guide_as_seen/3", %{client: client} do
+      params = Map.put(@guide, :content, %{title: "Hi"})
+      {_, req} = capture_request(fn -> Users.mark_guide_as_seen(client, "u1", params) end)
+
+      assert {req.method, req.path} == {:put, "/users/u1/guides/messages/seen"}
+      assert req.body["content"] == %{"title" => "Hi"}
+      assert req.body["guide_key"] == "tour"
+    end
+
+    test "mark_guide_as_interacted/3", %{client: client} do
+      {_, req} = capture_request(fn -> Users.mark_guide_as_interacted(client, "u1", @guide) end)
+      assert {req.method, req.path} == {:put, "/users/u1/guides/messages/interacted"}
+      assert req.body["guide_step_ref"] == "step_1"
+    end
+
+    test "mark_guide_as_archived/3", %{client: client} do
+      {_, req} =
+        capture_request(fn ->
+          Users.mark_guide_as_archived(client, "u1", Map.put(@guide, :is_final, true))
+        end)
+
+      assert {req.method, req.path} == {:put, "/users/u1/guides/messages/archived"}
+      assert req.body["is_final"] == true
+    end
+
+    test "mark_guide_as_unarchived/3 sends a JSON body", %{client: client} do
+      {_, req} =
+        capture_request(fn ->
+          Users.mark_guide_as_unarchived(client, "u1", %{guide_key: "tour", tenant: "t1"})
+        end)
+
+      assert {req.method, req.path, req.body} ==
+               {:delete, "/users/u1/guides/messages/archived",
+                %{"guide_key" => "tour", "tenant" => "t1"}}
+    end
+
+    test "reset_guide_engagement/3", %{client: client} do
+      {_, req} =
+        capture_request(fn ->
+          Users.reset_guide_engagement(client, "u1", %{guide_key: "tour"})
+        end)
+
+      assert {req.method, req.path, req.body} ==
+               {:put, "/users/u1/guides/engagements/reset", %{"guide_key" => "tour"}}
+    end
+  end
+
+  describe "preference center" do
+    test "get_preference_center_config/2", %{client: client} do
+      {_, req} = capture_request(fn -> Users.get_preference_center_config(client, "u1") end)
+      assert {req.method, req.path} == {:get, "/users/u1/preference_center/config"}
+    end
+
+    test "generate_preference_center_signed_url/2", %{client: client} do
+      {_, req} =
+        capture_request(fn -> Users.generate_preference_center_signed_url(client, "u1") end)
+
+      assert {req.method, req.path, req.body} ==
+               {:post, "/users/u1/preference_center/signed_url", %{}}
+    end
+  end
 end

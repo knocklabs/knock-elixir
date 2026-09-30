@@ -407,6 +407,120 @@ defmodule Knock.Users do
     Api.get(client, "/users/#{id}/subscriptions", query: options)
   end
 
+  ##
+  # Guides
+  ##
+
+  @doc """
+  Returns the guides for the user on the given guide channel.
+
+  ## Available optional parameters:
+
+  * `:tenant` - tenant id to scope guides to
+  * `:type` - guide type to filter guides with
+  * `:data` - data to evaluate guide targeting against, as a map or a JSON-encoded string
+  """
+  @spec get_guides(Client.t(), String.t(), String.t(), Keyword.t()) :: Api.response()
+  def get_guides(client, user_id, channel_id, options \\ []) do
+    options = maybe_json_encode_param(options, :data, client.json_client)
+
+    Api.get(client, "/users/#{user_id}/guides/#{channel_id}", query: options)
+  end
+
+  @doc """
+  Records that the user has seen a guide.
+
+  Expected properties:
+  - channel_id: the guide channel id
+  - guide_id: the guide id
+  - guide_key: the guide key
+  - guide_step_ref: the ref of the guide step
+  - content: the content of the guide step
+  - data (optional): data used when rendering the guide
+  - tenant (optional): tenant id the guide was seen in
+  """
+  @spec mark_guide_as_seen(Client.t(), String.t(), map()) :: Api.response()
+  def mark_guide_as_seen(client, user_id, params) do
+    Api.put(client, "/users/#{user_id}/guides/messages/seen", params)
+  end
+
+  @doc """
+  Records that the user has interacted with a guide.
+
+  Expected properties:
+  - channel_id: the guide channel id
+  - guide_id: the guide id
+  - guide_key: the guide key
+  - guide_step_ref: the ref of the guide step
+  - metadata (optional): metadata about the interaction
+  - tenant (optional): tenant id the guide was interacted with in
+  """
+  @spec mark_guide_as_interacted(Client.t(), String.t(), map()) :: Api.response()
+  def mark_guide_as_interacted(client, user_id, params) do
+    Api.put(client, "/users/#{user_id}/guides/messages/interacted", params)
+  end
+
+  @doc """
+  Records that the user has archived a guide.
+
+  Expected properties:
+  - channel_id: the guide channel id
+  - guide_id: the guide id
+  - guide_key: the guide key
+  - guide_step_ref: the ref of the guide step
+  - is_final (optional): whether this is the final step of the guide
+  - unthrottled (optional): whether the guide is unthrottled
+  - tenant (optional): tenant id the guide was archived in
+  """
+  @spec mark_guide_as_archived(Client.t(), String.t(), map()) :: Api.response()
+  def mark_guide_as_archived(client, user_id, params) do
+    Api.put(client, "/users/#{user_id}/guides/messages/archived", params)
+  end
+
+  @doc """
+  Unarchives a guide for the user.
+
+  Expected properties:
+  - guide_key: the guide key
+  - tenant (optional): tenant id to unarchive the guide in
+  """
+  @spec mark_guide_as_unarchived(Client.t(), String.t(), map()) :: Api.response()
+  def mark_guide_as_unarchived(client, user_id, params) do
+    Api.delete(client, "/users/#{user_id}/guides/messages/archived", body: params)
+  end
+
+  @doc """
+  Resets the user's engagement with a guide.
+
+  Expected properties:
+  - guide_key: the guide key
+  - tenant (optional): tenant id to reset the guide engagement in
+  """
+  @spec reset_guide_engagement(Client.t(), String.t(), map()) :: Api.response()
+  def reset_guide_engagement(client, user_id, params) do
+    Api.put(client, "/users/#{user_id}/guides/engagements/reset", params)
+  end
+
+  ##
+  # Preference center
+  ##
+
+  @doc """
+  Returns the preference center configuration for the user.
+  """
+  @spec get_preference_center_config(Client.t(), String.t()) :: Api.response()
+  def get_preference_center_config(client, user_id) do
+    Api.get(client, "/users/#{user_id}/preference_center/config")
+  end
+
+  @doc """
+  Generates a signed URL to the hosted preference center for the user.
+  """
+  @spec generate_preference_center_signed_url(Client.t(), String.t()) :: Api.response()
+  def generate_preference_center_signed_url(client, user_id) do
+    Api.post(client, "/users/#{user_id}/preference_center/signed_url", %{})
+  end
+
   defp build_setting_param(setting) when is_map(setting), do: setting
   defp build_setting_param(setting), do: %{subscribed: setting}
 end
