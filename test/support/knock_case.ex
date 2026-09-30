@@ -35,7 +35,13 @@ defmodule Knock.Case do
     result = fun.()
 
     receive do
-      {:knock_request, env} -> {result, normalize(env)}
+      {:knock_request, env} ->
+        ExUnit.Assertions.refute_received(
+          {:knock_request, _},
+          "expected exactly one request to be issued"
+        )
+
+        {result, normalize(env)}
     after
       0 -> ExUnit.Assertions.flunk("expected a request to be issued")
     end
@@ -66,7 +72,8 @@ defmodule Knock.Case do
   defp decode_query(query) do
     query
     |> Tesla.encode_query()
-    |> URI.decode_www_form()
+    |> URI.query_decoder()
+    |> Enum.map_join("&", fn {key, value} -> "#{key}=#{value}" end)
     |> q()
   end
 
