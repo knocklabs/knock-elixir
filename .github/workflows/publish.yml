@@ -11,8 +11,11 @@ jobs:
   Publish:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    env:
-      HEX_API_KEY: ${{ secrets.KNOCK_HEX_API_KEY }}
+    # The hex-publish environment is the one the Hex workload identity trusts.
+    environment: hex-publish
+    permissions:
+      contents: read
+      id-token: write # Required to publish with a Hex workload identity
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
